@@ -1,29 +1,40 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { Languages, ArrowLeft } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Your App" },
-      { name: "description", content: "Replace this with a one-sentence description of your app." },
-      { property: "og:title", content: "Your App" },
-      { property: "og:description", content: "Replace this with a one-sentence description of your app." },
+      { title: "منصة تعليم اللغات" },
+      { name: "description", content: "منصة عربية لتعلّم اللغات بدورات تفاعلية ومعلّمين مختصّين." },
     ],
   }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="min-h-screen flex items-center justify-center px-6" dir="rtl" style={{ background: "var(--gradient-hero)" }}>
+      <div className="max-w-2xl text-center text-white">
+        <div className="inline-flex items-center gap-3 mb-8">
+          <div className="w-14 h-14 rounded-2xl bg-white/15 backdrop-blur flex items-center justify-center">
+            <Languages className="w-7 h-7" />
+          </div>
+          <span className="text-2xl font-bold">لغات</span>
+        </div>
+        <h1 className="text-5xl sm:text-6xl font-bold leading-tight mb-6">
+          تعلّم لغة جديدة<br />بطريقة تُشبهك
+        </h1>
+        <p className="text-white/85 text-lg mb-10 leading-relaxed">
+          ابدأ بإنشاء حسابك واختيار مستواك، ودع البقية علينا.
+        </p>
+        <Link
+          to="/auth"
+          className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-white text-foreground font-semibold hover:bg-white/90 transition"
+        >
+          ابدأ الآن
+          <ArrowLeft className="w-4 h-4" />
+        </Link>
+      </div>
     </div>
   );
 }
