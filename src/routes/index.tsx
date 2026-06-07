@@ -27,13 +27,15 @@ function Index() {
         <p className="text-white/85 text-lg mb-10 leading-relaxed">
           ابدأ بإنشاء حسابك واختيار مستواك، ودع البقية علينا.
         </p>
-        <Link
-          to="/auth"
-          className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-white text-foreground font-semibold hover:bg-white/90 transition"
-        >
-          ابدأ الآن
-          <ArrowLeft className="w-4 h-4" />
-        </Link>
+        <div className="flex gap-3 justify-center flex-wrap">
+          <Link to="/auth" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-white text-foreground font-semibold hover:bg-white/90 transition">
+            ابدأ الآن
+            <ArrowLeft className="w-4 h-4" />
+          </Link>
+          <Link to="/dashboard" className="inline-flex items-center gap-2 px-8 py-4 rounded-xl border-2 border-white/30 text-white font-semibold hover:bg-white/10 transition">
+            لوحتي
+          </Link>
+        </div>
       </div>
     </div>
   );
