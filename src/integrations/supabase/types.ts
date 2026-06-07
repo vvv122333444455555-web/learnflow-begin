@@ -14,6 +14,77 @@ export type Database = {
   }
   public: {
     Tables: {
+      courses: {
+        Row: {
+          created_at: string
+          description: string | null
+          duration_weeks: number
+          id: string
+          is_active: boolean
+          language_id: string
+          lessons_count: number
+          level: string
+          price: number
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duration_weeks?: number
+          id?: string
+          is_active?: boolean
+          language_id: string
+          lessons_count?: number
+          level: string
+          price?: number
+          title: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duration_weeks?: number
+          id?: string
+          is_active?: boolean
+          language_id?: string
+          lessons_count?: number
+          level?: string
+          price?: number
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "courses_language_id_fkey"
+            columns: ["language_id"]
+            isOneToOne: false
+            referencedRelation: "languages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      languages: {
+        Row: {
+          code: string
+          created_at: string
+          flag: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          flag?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          flag?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
