@@ -1,6 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
-import { Mail, Lock, User, Languages, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Mail, Lock, User, Languages, Sparkles, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -14,11 +17,64 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const [mode, setMode] = useState<"login" | "signup">("login");
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => {
+      if (data.user) navigate({ to: "/level" });
+    });
+  }, [navigate]);
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    try {
+      if (mode === "signup") {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/level`,
+            data: { full_name: fullName },
+          },
+        });
+        if (error) throw error;
+        toast.success("تم إنشاء حسابك! تحقّق من بريدك لتأكيد التسجيل.");
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) throw error;
+        navigate({ to: "/level" });
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "حدث خطأ ما";
+      toast.error(
+        message.includes("Invalid login") ? "بيانات الدخول غير صحيحة" :
+        message.includes("already registered") ? "هذا البريد مسجّل مسبقًا" :
+        message
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const onGoogle = async () => {
+    const result = await lovable.auth.signInWithOAuth("google", {
+      redirect_uri: `${window.location.origin}/level`,
+    });
+    if (result.error) {
+      toast.error("تعذّر تسجيل الدخول عبر Google");
+      return;
+    }
+    if (result.redirected) return;
+    navigate({ to: "/level" });
+  };
 
   return (
     <div className="min-h-screen flex" dir="rtl">
-      {/* Hero side */}
       <div className="hidden lg:flex relative w-1/2 overflow-hidden" style={{ background: "var(--gradient-hero)" }}>
         <div className="absolute inset-0 opacity-20" style={{
           backgroundImage: "radial-gradient(circle at 20% 20%, white 1px, transparent 1px), radial-gradient(circle at 80% 70%, white 1px, transparent 1px)",
@@ -31,7 +87,6 @@ function AuthPage() {
             </div>
             <span className="text-xl font-bold">لغات</span>
           </div>
-
           <div className="space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/15 backdrop-blur text-sm">
               <Sparkles className="w-4 h-4" />
@@ -44,13 +99,8 @@ function AuthPage() {
               دروس تفاعلية، معلّمون مختصّون، وجلسات مباشرة — كل ما تحتاجه للوصول إلى مستوى الطلاقة.
             </p>
           </div>
-
           <div className="grid grid-cols-3 gap-6 text-white/90">
-            {[
-              { n: "+12", l: "لغة" },
-              { n: "+300", l: "دورة" },
-              { n: "+50k", l: "متعلّم" },
-            ].map((s) => (
+            {[{ n: "+12", l: "لغة" }, { n: "+300", l: "دورة" }, { n: "+50k", l: "متعلّم" }].map((s) => (
               <div key={s.l}>
                 <div className="text-3xl font-bold">{s.n}</div>
                 <div className="text-sm text-white/70">{s.l}</div>
@@ -60,7 +110,6 @@ function AuthPage() {
         </div>
       </div>
 
-      {/* Form side */}
       <div className="flex-1 flex items-center justify-center p-6 sm:p-12 bg-background">
         <div className="w-full max-w-md">
           <div className="lg:hidden mb-8 flex items-center gap-3">
@@ -75,22 +124,17 @@ function AuthPage() {
               {mode === "login" ? "مرحبًا بعودتك" : "أنشئ حسابك"}
             </h2>
             <p className="text-muted-foreground mt-2">
-              {mode === "login"
-                ? "سجّل الدخول لمتابعة دروسك وتقدّمك."
-                : "خطوات قليلة وتبدأ التعلّم اليوم."}
+              {mode === "login" ? "سجّل الدخول لمتابعة دروسك وتقدّمك." : "خطوات قليلة وتبدأ التعلّم اليوم."}
             </p>
           </div>
 
-          {/* Tab switch */}
           <div className="grid grid-cols-2 p-1 bg-muted rounded-xl mb-6">
             {(["login", "signup"] as const).map((m) => (
               <button
                 key={m}
                 onClick={() => setMode(m)}
                 className={`py-2.5 text-sm font-medium rounded-lg transition-all ${
-                  mode === m
-                    ? "bg-background text-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
+                  mode === m ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 {m === "login" ? "تسجيل الدخول" : "حساب جديد"}
@@ -98,45 +142,32 @@ function AuthPage() {
             ))}
           </div>
 
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              navigate({ to: "/level" });
-            }}
-            className="space-y-4"
-          >
+          <form onSubmit={onSubmit} className="space-y-4">
             {mode === "signup" && (
-              <Field icon={<User className="w-4 h-4" />} label="الاسم الكامل" type="text" placeholder="محمد أحمد" />
+              <Field icon={<User className="w-4 h-4" />} label="الاسم الكامل" type="text" placeholder="محمد أحمد" value={fullName} onChange={setFullName} required />
             )}
-            <Field icon={<Mail className="w-4 h-4" />} label="البريد الإلكتروني" type="email" placeholder="you@example.com" />
-            <Field icon={<Lock className="w-4 h-4" />} label="كلمة المرور" type="password" placeholder="••••••••" />
-
-            {mode === "login" && (
-              <div className="flex items-center justify-between text-sm">
-                <label className="flex items-center gap-2 text-muted-foreground cursor-pointer">
-                  <input type="checkbox" className="rounded border-border accent-primary" />
-                  تذكّرني
-                </label>
-                <a href="#" className="text-primary hover:underline">نسيت كلمة المرور؟</a>
-              </div>
-            )}
+            <Field icon={<Mail className="w-4 h-4" />} label="البريد الإلكتروني" type="email" placeholder="you@example.com" value={email} onChange={setEmail} required />
+            <Field icon={<Lock className="w-4 h-4" />} label="كلمة المرور" type="password" placeholder="••••••••" value={password} onChange={setPassword} required />
 
             <button
               type="submit"
-              className="w-full py-3 rounded-xl font-semibold text-primary-foreground transition-all hover:opacity-95 active:scale-[0.99]"
+              disabled={loading}
+              className="w-full py-3 rounded-xl font-semibold text-primary-foreground transition-all hover:opacity-95 active:scale-[0.99] disabled:opacity-60 inline-flex items-center justify-center gap-2"
               style={{ background: "var(--gradient-hero)", boxShadow: "var(--shadow-elegant)" }}
             >
+              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
               {mode === "login" ? "دخول" : "إنشاء الحساب"}
             </button>
           </form>
 
           <div className="my-6 flex items-center gap-4 text-xs text-muted-foreground">
-            <div className="flex-1 h-px bg-border" />
-            أو
-            <div className="flex-1 h-px bg-border" />
+            <div className="flex-1 h-px bg-border" /> أو <div className="flex-1 h-px bg-border" />
           </div>
 
-          <button className="w-full py-3 rounded-xl border border-border bg-card hover:bg-muted transition-colors flex items-center justify-center gap-3 font-medium">
+          <button
+            onClick={onGoogle}
+            className="w-full py-3 rounded-xl border border-border bg-card hover:bg-muted transition-colors flex items-center justify-center gap-3 font-medium"
+          >
             <GoogleIcon />
             المتابعة عبر Google
           </button>
@@ -151,7 +182,10 @@ function AuthPage() {
   );
 }
 
-function Field({ icon, label, type, placeholder }: { icon: React.ReactNode; label: string; type: string; placeholder: string }) {
+function Field({ icon, label, type, placeholder, value, onChange, required }: {
+  icon: React.ReactNode; label: string; type: string; placeholder: string;
+  value: string; onChange: (v: string) => void; required?: boolean;
+}) {
   return (
     <label className="block">
       <span className="text-sm font-medium text-foreground mb-1.5 block">{label}</span>
@@ -160,7 +194,9 @@ function Field({ icon, label, type, placeholder }: { icon: React.ReactNode; labe
         <input
           type={type}
           placeholder={placeholder}
-          required
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          required={required}
           className="w-full pr-10 pl-4 py-3 rounded-xl border border-input bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition"
         />
       </div>
