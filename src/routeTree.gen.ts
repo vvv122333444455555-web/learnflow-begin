@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedMyCoursesRouteImport } from './routes/_authenticated/my-courses'
 import { Route as AuthenticatedLevelRouteImport } from './routes/_authenticated/level'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCoursesRouteImport } from './routes/_authenticated/courses'
@@ -30,6 +31,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedMyCoursesRoute = AuthenticatedMyCoursesRouteImport.update({
+  id: '/my-courses',
+  path: '/my-courses',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedLevelRoute = AuthenticatedLevelRouteImport.update({
   id: '/level',
@@ -58,6 +64,7 @@ export interface FileRoutesByFullPath {
   '/courses': typeof AuthenticatedCoursesRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/level': typeof AuthenticatedLevelRoute
+  '/my-courses': typeof AuthenticatedMyCoursesRoute
   '/courses/$id': typeof AuthenticatedCoursesIdRoute
 }
 export interface FileRoutesByTo {
@@ -66,6 +73,7 @@ export interface FileRoutesByTo {
   '/courses': typeof AuthenticatedCoursesRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/level': typeof AuthenticatedLevelRoute
+  '/my-courses': typeof AuthenticatedMyCoursesRoute
   '/courses/$id': typeof AuthenticatedCoursesIdRoute
 }
 export interface FileRoutesById {
@@ -76,6 +84,7 @@ export interface FileRoutesById {
   '/_authenticated/courses': typeof AuthenticatedCoursesRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/level': typeof AuthenticatedLevelRoute
+  '/_authenticated/my-courses': typeof AuthenticatedMyCoursesRoute
   '/_authenticated/courses/$id': typeof AuthenticatedCoursesIdRoute
 }
 export interface FileRouteTypes {
@@ -86,9 +95,17 @@ export interface FileRouteTypes {
     | '/courses'
     | '/dashboard'
     | '/level'
+    | '/my-courses'
     | '/courses/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/courses' | '/dashboard' | '/level' | '/courses/$id'
+  to:
+    | '/'
+    | '/auth'
+    | '/courses'
+    | '/dashboard'
+    | '/level'
+    | '/my-courses'
+    | '/courses/$id'
   id:
     | '__root__'
     | '/'
@@ -97,6 +114,7 @@ export interface FileRouteTypes {
     | '/_authenticated/courses'
     | '/_authenticated/dashboard'
     | '/_authenticated/level'
+    | '/_authenticated/my-courses'
     | '/_authenticated/courses/$id'
   fileRoutesById: FileRoutesById
 }
@@ -128,6 +146,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/my-courses': {
+      id: '/_authenticated/my-courses'
+      path: '/my-courses'
+      fullPath: '/my-courses'
+      preLoaderRoute: typeof AuthenticatedMyCoursesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/level': {
       id: '/_authenticated/level'
@@ -175,12 +200,14 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedCoursesRoute: typeof AuthenticatedCoursesRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedLevelRoute: typeof AuthenticatedLevelRoute
+  AuthenticatedMyCoursesRoute: typeof AuthenticatedMyCoursesRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedCoursesRoute: AuthenticatedCoursesRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedLevelRoute: AuthenticatedLevelRoute,
+  AuthenticatedMyCoursesRoute: AuthenticatedMyCoursesRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
