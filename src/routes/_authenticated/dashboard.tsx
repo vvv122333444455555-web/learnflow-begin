@@ -124,17 +124,22 @@ function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; va
 
 export function CourseCard({ course }: { course: Course }) {
   return (
-    <div className="group p-5 rounded-2xl bg-card border border-border hover:border-primary/40 transition-all" style={{ boxShadow: "var(--shadow-soft)" }}>
+    <Link
+      to="/courses/$id"
+      params={{ id: course.id }}
+      className="group block p-5 rounded-2xl bg-card border border-border hover:border-primary/40 hover:-translate-y-0.5 transition-all"
+      style={{ boxShadow: "var(--shadow-soft)" }}
+    >
       <div className="flex items-start justify-between mb-4">
         <div className="text-3xl">{course.languages?.flag ?? "🌍"}</div>
         <span className="text-xs font-bold text-accent-foreground bg-accent px-2 py-1 rounded-md">{course.level}</span>
       </div>
-      <h3 className="font-bold text-foreground mb-1.5">{course.title}</h3>
+      <h3 className="font-bold text-foreground mb-1.5 group-hover:text-primary transition">{course.title}</h3>
       <p className="text-sm text-muted-foreground line-clamp-2 mb-4">{course.description}</p>
       <div className="flex items-center gap-4 text-xs text-muted-foreground pt-3 border-t border-border">
         <span className="flex items-center gap-1"><BookOpen className="w-3.5 h-3.5" />{course.lessons_count} درس</span>
         <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{course.duration_weeks} أسبوع</span>
       </div>
-    </div>
+    </Link>
   );
 }
