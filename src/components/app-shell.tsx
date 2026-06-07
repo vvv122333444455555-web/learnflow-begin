@@ -19,6 +19,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const links = [
     { to: "/dashboard", label: "الرئيسية", icon: LayoutDashboard },
     { to: "/courses", label: "الدورات", icon: BookOpen },
+    { to: "/my-courses", label: "دوراتي", icon: Library },
     { to: "/level", label: "مستواي", icon: GraduationCap },
   ] as const;
 
