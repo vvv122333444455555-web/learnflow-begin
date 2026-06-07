@@ -52,6 +52,7 @@ function LevelPage() {
       return;
     }
     toast.success(`تم حفظ مستواك: ${selected}`);
+    navigate({ to: "/dashboard" });
   };
 
   const onSignOut = async () => {
