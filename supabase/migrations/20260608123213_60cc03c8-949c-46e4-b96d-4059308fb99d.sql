@@ -1,0 +1,1 @@
+ALTER TABLE public.enrollments ADD COLUMN IF NOT EXISTS completed_lessons integer NOT NULL DEFAULT 0;
