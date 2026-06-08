@@ -1,6 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Mail, Lock, User, Languages, Sparkles, Loader2 } from "lucide-react";
+import { Mail, Lock, User, Languages, Sparkles, Loader2, GraduationCap, Baby } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
@@ -15,9 +15,14 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
+type AccountType = "adult" | "parent";
+
 function AuthPage() {
   const [mode, setMode] = useState<"login" | "signup">("login");
+  const [accountType, setAccountType] = useState<AccountType>("adult");
   const [fullName, setFullName] = useState("");
+  const [kidName, setKidName] = useState("");
+  const [kidAge, setKidAge] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -34,7 +39,7 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -43,11 +48,21 @@ function AuthPage() {
           },
         });
         if (error) throw error;
+
+        if (data.user) {
+          await supabase.from("profiles").update({
+            account_type: accountType,
+            kid_name: accountType === "parent" ? kidName : null,
+            kid_age: accountType === "parent" && kidAge ? Number(kidAge) : null,
+          }).eq("id", data.user.id);
+        }
+
         toast.success("تم إنشاء حسابك! تحقّق من بريدك لتأكيد التسجيل.");
+        if (data.session) navigate({ to: "/level" });
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        navigate({ to: "/level" });
+        navigate({ to: "/dashboard" });
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : "حدث خطأ ما";
@@ -96,7 +111,7 @@ function AuthPage() {
               ابدأ رحلتك<br />نحو إتقان لغة جديدة
             </h1>
             <p className="text-white/85 text-lg max-w-md leading-relaxed">
-              دروس تفاعلية، معلّمون مختصّون، وجلسات مباشرة — كل ما تحتاجه للوصول إلى مستوى الطلاقة.
+              دروس تفاعلية للكبار، ومسارات ممتعة ومسلية للأطفال — لكل عمر طريقته.
             </p>
           </div>
           <div className="grid grid-cols-3 gap-6 text-white/90">
@@ -144,7 +159,52 @@ function AuthPage() {
 
           <form onSubmit={onSubmit} className="space-y-4">
             {mode === "signup" && (
-              <Field icon={<User className="w-4 h-4" />} label="الاسم الكامل" type="text" placeholder="محمد أحمد" value={fullName} onChange={setFullName} required />
+              <>
+                <div>
+                  <span className="text-sm font-medium text-foreground mb-1.5 block">نوع الحساب</span>
+                  <div className="grid grid-cols-2 gap-3">
+                    <TypeCard
+                      active={accountType === "adult"}
+                      onClick={() => setAccountType("adult")}
+                      icon={<GraduationCap className="w-5 h-5" />}
+                      title="طالب (بالغ)"
+                      desc="أتعلّم لنفسي"
+                    />
+                    <TypeCard
+                      active={accountType === "parent"}
+                      onClick={() => setAccountType("parent")}
+                      icon={<Baby className="w-5 h-5" />}
+                      title="وليّ أمر"
+                      desc="لطفلي"
+                    />
+                  </div>
+                </div>
+
+                <Field icon={<User className="w-4 h-4" />} label="الاسم الكامل" type="text" placeholder="محمد أحمد" value={fullName} onChange={setFullName} required />
+
+                {accountType === "parent" && (
+                  <div className="grid grid-cols-3 gap-3">
+                    <div className="col-span-2">
+                      <Field icon={<Baby className="w-4 h-4" />} label="اسم الطفل" type="text" placeholder="سارة" value={kidName} onChange={setKidName} required />
+                    </div>
+                    <div>
+                      <label className="block">
+                        <span className="text-sm font-medium text-foreground mb-1.5 block">العمر</span>
+                        <input
+                          type="number"
+                          min={3}
+                          max={17}
+                          placeholder="8"
+                          value={kidAge}
+                          onChange={(e) => setKidAge(e.target.value)}
+                          required
+                          className="w-full px-4 py-3 rounded-xl border border-input bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-ring transition"
+                        />
+                      </label>
+                    </div>
+                  </div>
+                )}
+              </>
             )}
             <Field icon={<Mail className="w-4 h-4" />} label="البريد الإلكتروني" type="email" placeholder="you@example.com" value={email} onChange={setEmail} required />
             <Field icon={<Lock className="w-4 h-4" />} label="كلمة المرور" type="password" placeholder="••••••••" value={password} onChange={setPassword} required />
@@ -179,6 +239,28 @@ function AuthPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+function TypeCard({ active, onClick, icon, title, desc }: {
+  active: boolean; onClick: () => void; icon: React.ReactNode; title: string; desc: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`text-right p-4 rounded-xl border-2 transition-all bg-card ${
+        active ? "border-primary" : "border-border hover:border-primary/40"
+      }`}
+    >
+      <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-2 ${
+        active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+      }`}>
+        {icon}
+      </div>
+      <div className="text-sm font-bold text-foreground">{title}</div>
+      <div className="text-xs text-muted-foreground">{desc}</div>
+    </button>
   );
 }
 
