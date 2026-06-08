@@ -128,26 +128,35 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_type: string
           created_at: string
           email: string | null
           full_name: string | null
           id: string
+          kid_age: number | null
+          kid_name: string | null
           level: string | null
           updated_at: string
         }
         Insert: {
+          account_type?: string
           created_at?: string
           email?: string | null
           full_name?: string | null
           id: string
+          kid_age?: number | null
+          kid_name?: string | null
           level?: string | null
           updated_at?: string
         }
         Update: {
+          account_type?: string
           created_at?: string
           email?: string | null
           full_name?: string | null
           id?: string
+          kid_age?: number | null
+          kid_name?: string | null
           level?: string | null
           updated_at?: string
         }
