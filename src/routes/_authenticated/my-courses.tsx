@@ -94,14 +94,24 @@ function MyCourses() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between pt-3 border-t border-border">
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                <div className="flex items-center justify-between pt-3 border-t border-border gap-2">
+                  <div className="flex items-center gap-3 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1"><BookOpen className="w-3.5 h-3.5" />{r.courses.lessons_count} درس</span>
                     <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{r.courses.duration_weeks} أسبوع</span>
                   </div>
-                  <button onClick={() => unenroll(r.id)} className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition" title="إلغاء التسجيل">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  <div className="flex items-center gap-1">
+                    <Link
+                      to="/courses/$id/lessons/$n"
+                      params={{ id: r.courses.id, n: "1" }}
+                      className="px-3 py-1.5 rounded-lg text-xs font-semibold text-primary-foreground hover:opacity-90 transition"
+                      style={{ background: "var(--gradient-hero)" }}
+                    >
+                      متابعة
+                    </Link>
+                    <button onClick={() => unenroll(r.id)} className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition" title="إلغاء التسجيل">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
             ))}

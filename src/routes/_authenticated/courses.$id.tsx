@@ -58,7 +58,7 @@ function CourseDetails() {
     await supabase.from("enrollments").insert({ user_id: u.user.id, course_id: id });
     setEnrolled(true);
     setSaving(false);
-    navigate({ to: "/my-courses" });
+    navigate({ to: "/courses/$id/lessons/$n", params: { id, n: "1" } });
   };
 
   if (loading) {
@@ -177,11 +177,13 @@ function CourseDetails() {
 
               {enrolled ? (
                 <Link
-                  to="/my-courses"
-                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-primary/10 text-primary font-semibold border border-primary/20"
+                  to="/courses/$id/lessons/$n"
+                  params={{ id: course.id, n: "1" }}
+                  className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl text-white font-semibold transition"
+                  style={{ background: "var(--gradient-hero)" }}
                 >
                   <CheckCircle2 className="w-4 h-4" />
-                  أنت مسجّل — تابع التعلّم
+                  ابدأ التعلّم
                 </Link>
               ) : (
                 <button

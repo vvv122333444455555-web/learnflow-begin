@@ -17,6 +17,7 @@ import { Route as AuthenticatedLevelRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCoursesRouteImport } from './routes/_authenticated/courses'
 import { Route as AuthenticatedCoursesIdRouteImport } from './routes/_authenticated/courses.$id'
+import { Route as AuthenticatedCoursesIdLessonsNRouteImport } from './routes/_authenticated/courses.$id.lessons.$n'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -57,6 +58,12 @@ const AuthenticatedCoursesIdRoute = AuthenticatedCoursesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AuthenticatedCoursesRoute,
 } as any)
+const AuthenticatedCoursesIdLessonsNRoute =
+  AuthenticatedCoursesIdLessonsNRouteImport.update({
+    id: '/lessons/$n',
+    path: '/lessons/$n',
+    getParentRoute: () => AuthenticatedCoursesIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -65,7 +72,8 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/level': typeof AuthenticatedLevelRoute
   '/my-courses': typeof AuthenticatedMyCoursesRoute
-  '/courses/$id': typeof AuthenticatedCoursesIdRoute
+  '/courses/$id': typeof AuthenticatedCoursesIdRouteWithChildren
+  '/courses/$id/lessons/$n': typeof AuthenticatedCoursesIdLessonsNRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -74,7 +82,8 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/level': typeof AuthenticatedLevelRoute
   '/my-courses': typeof AuthenticatedMyCoursesRoute
-  '/courses/$id': typeof AuthenticatedCoursesIdRoute
+  '/courses/$id': typeof AuthenticatedCoursesIdRouteWithChildren
+  '/courses/$id/lessons/$n': typeof AuthenticatedCoursesIdLessonsNRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -85,7 +94,8 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/level': typeof AuthenticatedLevelRoute
   '/_authenticated/my-courses': typeof AuthenticatedMyCoursesRoute
-  '/_authenticated/courses/$id': typeof AuthenticatedCoursesIdRoute
+  '/_authenticated/courses/$id': typeof AuthenticatedCoursesIdRouteWithChildren
+  '/_authenticated/courses/$id/lessons/$n': typeof AuthenticatedCoursesIdLessonsNRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -97,6 +107,7 @@ export interface FileRouteTypes {
     | '/level'
     | '/my-courses'
     | '/courses/$id'
+    | '/courses/$id/lessons/$n'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -106,6 +117,7 @@ export interface FileRouteTypes {
     | '/level'
     | '/my-courses'
     | '/courses/$id'
+    | '/courses/$id/lessons/$n'
   id:
     | '__root__'
     | '/'
@@ -116,6 +128,7 @@ export interface FileRouteTypes {
     | '/_authenticated/level'
     | '/_authenticated/my-courses'
     | '/_authenticated/courses/$id'
+    | '/_authenticated/courses/$id/lessons/$n'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -182,15 +195,36 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCoursesIdRouteImport
       parentRoute: typeof AuthenticatedCoursesRoute
     }
+    '/_authenticated/courses/$id/lessons/$n': {
+      id: '/_authenticated/courses/$id/lessons/$n'
+      path: '/lessons/$n'
+      fullPath: '/courses/$id/lessons/$n'
+      preLoaderRoute: typeof AuthenticatedCoursesIdLessonsNRouteImport
+      parentRoute: typeof AuthenticatedCoursesIdRoute
+    }
   }
 }
 
+interface AuthenticatedCoursesIdRouteChildren {
+  AuthenticatedCoursesIdLessonsNRoute: typeof AuthenticatedCoursesIdLessonsNRoute
+}
+
+const AuthenticatedCoursesIdRouteChildren: AuthenticatedCoursesIdRouteChildren =
+  {
+    AuthenticatedCoursesIdLessonsNRoute: AuthenticatedCoursesIdLessonsNRoute,
+  }
+
+const AuthenticatedCoursesIdRouteWithChildren =
+  AuthenticatedCoursesIdRoute._addFileChildren(
+    AuthenticatedCoursesIdRouteChildren,
+  )
+
 interface AuthenticatedCoursesRouteChildren {
-  AuthenticatedCoursesIdRoute: typeof AuthenticatedCoursesIdRoute
+  AuthenticatedCoursesIdRoute: typeof AuthenticatedCoursesIdRouteWithChildren
 }
 
 const AuthenticatedCoursesRouteChildren: AuthenticatedCoursesRouteChildren = {
-  AuthenticatedCoursesIdRoute: AuthenticatedCoursesIdRoute,
+  AuthenticatedCoursesIdRoute: AuthenticatedCoursesIdRouteWithChildren,
 }
 
 const AuthenticatedCoursesRouteWithChildren =
