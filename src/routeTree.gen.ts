@@ -17,6 +17,7 @@ import { Route as AuthenticatedMyCoursesRouteImport } from './routes/_authentica
 import { Route as AuthenticatedLevelRouteImport } from './routes/_authenticated/level'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCoursesRouteImport } from './routes/_authenticated/courses'
+import { Route as AuthenticatedTeachAvailabilityRouteImport } from './routes/_authenticated/teach.availability'
 import { Route as AuthenticatedCoursesIdRouteImport } from './routes/_authenticated/courses.$id'
 import { Route as AuthenticatedCoursesIdLessonsNRouteImport } from './routes/_authenticated/courses.$id.lessons.$n'
 
@@ -60,6 +61,12 @@ const AuthenticatedCoursesRoute = AuthenticatedCoursesRouteImport.update({
   path: '/courses',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTeachAvailabilityRoute =
+  AuthenticatedTeachAvailabilityRouteImport.update({
+    id: '/teach/availability',
+    path: '/teach/availability',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCoursesIdRoute = AuthenticatedCoursesIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -81,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/my-courses': typeof AuthenticatedMyCoursesRoute
   '/placement-test': typeof AuthenticatedPlacementTestRoute
   '/courses/$id': typeof AuthenticatedCoursesIdRouteWithChildren
+  '/teach/availability': typeof AuthenticatedTeachAvailabilityRoute
   '/courses/$id/lessons/$n': typeof AuthenticatedCoursesIdLessonsNRoute
 }
 export interface FileRoutesByTo {
@@ -92,6 +100,7 @@ export interface FileRoutesByTo {
   '/my-courses': typeof AuthenticatedMyCoursesRoute
   '/placement-test': typeof AuthenticatedPlacementTestRoute
   '/courses/$id': typeof AuthenticatedCoursesIdRouteWithChildren
+  '/teach/availability': typeof AuthenticatedTeachAvailabilityRoute
   '/courses/$id/lessons/$n': typeof AuthenticatedCoursesIdLessonsNRoute
 }
 export interface FileRoutesById {
@@ -105,6 +114,7 @@ export interface FileRoutesById {
   '/_authenticated/my-courses': typeof AuthenticatedMyCoursesRoute
   '/_authenticated/placement-test': typeof AuthenticatedPlacementTestRoute
   '/_authenticated/courses/$id': typeof AuthenticatedCoursesIdRouteWithChildren
+  '/_authenticated/teach/availability': typeof AuthenticatedTeachAvailabilityRoute
   '/_authenticated/courses/$id/lessons/$n': typeof AuthenticatedCoursesIdLessonsNRoute
 }
 export interface FileRouteTypes {
@@ -118,6 +128,7 @@ export interface FileRouteTypes {
     | '/my-courses'
     | '/placement-test'
     | '/courses/$id'
+    | '/teach/availability'
     | '/courses/$id/lessons/$n'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -129,6 +140,7 @@ export interface FileRouteTypes {
     | '/my-courses'
     | '/placement-test'
     | '/courses/$id'
+    | '/teach/availability'
     | '/courses/$id/lessons/$n'
   id:
     | '__root__'
@@ -141,6 +153,7 @@ export interface FileRouteTypes {
     | '/_authenticated/my-courses'
     | '/_authenticated/placement-test'
     | '/_authenticated/courses/$id'
+    | '/_authenticated/teach/availability'
     | '/_authenticated/courses/$id/lessons/$n'
   fileRoutesById: FileRoutesById
 }
@@ -208,6 +221,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCoursesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/teach/availability': {
+      id: '/_authenticated/teach/availability'
+      path: '/teach/availability'
+      fullPath: '/teach/availability'
+      preLoaderRoute: typeof AuthenticatedTeachAvailabilityRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/courses/$id': {
       id: '/_authenticated/courses/$id'
       path: '/$id'
@@ -256,6 +276,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedLevelRoute: typeof AuthenticatedLevelRoute
   AuthenticatedMyCoursesRoute: typeof AuthenticatedMyCoursesRoute
   AuthenticatedPlacementTestRoute: typeof AuthenticatedPlacementTestRoute
+  AuthenticatedTeachAvailabilityRoute: typeof AuthenticatedTeachAvailabilityRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -264,6 +285,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedLevelRoute: AuthenticatedLevelRoute,
   AuthenticatedMyCoursesRoute: AuthenticatedMyCoursesRoute,
   AuthenticatedPlacementTestRoute: AuthenticatedPlacementTestRoute,
+  AuthenticatedTeachAvailabilityRoute: AuthenticatedTeachAvailabilityRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -277,3 +299,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
