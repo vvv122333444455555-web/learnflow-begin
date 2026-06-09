@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Languages, LayoutDashboard, BookOpen, GraduationCap, LogOut, Library } from "lucide-react";
+import { Languages, LayoutDashboard, BookOpen, GraduationCap, LogOut, Library, Sparkles } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -21,6 +21,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     { to: "/courses", label: "الدورات", icon: BookOpen },
     { to: "/my-courses", label: "دوراتي", icon: Library },
     { to: "/level", label: "مستواي", icon: GraduationCap },
+    { to: "/placement-test", label: "اختبار المستوى", icon: Sparkles },
   ] as const;
 
   const signOut = async () => {

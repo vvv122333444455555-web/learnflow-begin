@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedPlacementTestRouteImport } from './routes/_authenticated/placement-test'
 import { Route as AuthenticatedMyCoursesRouteImport } from './routes/_authenticated/my-courses'
 import { Route as AuthenticatedLevelRouteImport } from './routes/_authenticated/level'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
@@ -33,6 +34,12 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedPlacementTestRoute =
+  AuthenticatedPlacementTestRouteImport.update({
+    id: '/placement-test',
+    path: '/placement-test',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedMyCoursesRoute = AuthenticatedMyCoursesRouteImport.update({
   id: '/my-courses',
   path: '/my-courses',
@@ -72,6 +79,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/level': typeof AuthenticatedLevelRoute
   '/my-courses': typeof AuthenticatedMyCoursesRoute
+  '/placement-test': typeof AuthenticatedPlacementTestRoute
   '/courses/$id': typeof AuthenticatedCoursesIdRouteWithChildren
   '/courses/$id/lessons/$n': typeof AuthenticatedCoursesIdLessonsNRoute
 }
@@ -82,6 +90,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/level': typeof AuthenticatedLevelRoute
   '/my-courses': typeof AuthenticatedMyCoursesRoute
+  '/placement-test': typeof AuthenticatedPlacementTestRoute
   '/courses/$id': typeof AuthenticatedCoursesIdRouteWithChildren
   '/courses/$id/lessons/$n': typeof AuthenticatedCoursesIdLessonsNRoute
 }
@@ -94,6 +103,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/level': typeof AuthenticatedLevelRoute
   '/_authenticated/my-courses': typeof AuthenticatedMyCoursesRoute
+  '/_authenticated/placement-test': typeof AuthenticatedPlacementTestRoute
   '/_authenticated/courses/$id': typeof AuthenticatedCoursesIdRouteWithChildren
   '/_authenticated/courses/$id/lessons/$n': typeof AuthenticatedCoursesIdLessonsNRoute
 }
@@ -106,6 +116,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/level'
     | '/my-courses'
+    | '/placement-test'
     | '/courses/$id'
     | '/courses/$id/lessons/$n'
   fileRoutesByTo: FileRoutesByTo
@@ -116,6 +127,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/level'
     | '/my-courses'
+    | '/placement-test'
     | '/courses/$id'
     | '/courses/$id/lessons/$n'
   id:
@@ -127,6 +139,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard'
     | '/_authenticated/level'
     | '/_authenticated/my-courses'
+    | '/_authenticated/placement-test'
     | '/_authenticated/courses/$id'
     | '/_authenticated/courses/$id/lessons/$n'
   fileRoutesById: FileRoutesById
@@ -159,6 +172,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/placement-test': {
+      id: '/_authenticated/placement-test'
+      path: '/placement-test'
+      fullPath: '/placement-test'
+      preLoaderRoute: typeof AuthenticatedPlacementTestRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/my-courses': {
       id: '/_authenticated/my-courses'
@@ -235,6 +255,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedLevelRoute: typeof AuthenticatedLevelRoute
   AuthenticatedMyCoursesRoute: typeof AuthenticatedMyCoursesRoute
+  AuthenticatedPlacementTestRoute: typeof AuthenticatedPlacementTestRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -242,6 +263,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedLevelRoute: AuthenticatedLevelRoute,
   AuthenticatedMyCoursesRoute: AuthenticatedMyCoursesRoute,
+  AuthenticatedPlacementTestRoute: AuthenticatedPlacementTestRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

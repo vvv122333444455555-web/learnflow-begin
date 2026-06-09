@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Check, ArrowLeft, Sprout, Flame, Mountain, Trophy, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -126,7 +126,7 @@ function LevelPage() {
         <div className="mt-10 flex flex-col sm:flex-row gap-3 items-center justify-between">
           <p className="text-sm text-muted-foreground">
             لست متأكدًا؟{" "}
-            <a href="#" className="text-primary font-medium hover:underline">اخضع لاختبار تحديد المستوى</a>
+            <Link to="/placement-test" className="text-primary font-medium hover:underline">اخضع لاختبار تحديد المستوى</Link>
           </p>
           <button
             disabled={!selected || saving}
