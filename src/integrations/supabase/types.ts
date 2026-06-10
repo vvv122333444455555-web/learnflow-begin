@@ -102,6 +102,42 @@ export type Database = {
           },
         ]
       }
+      invoices: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          id: string
+          plan: string
+          provider: string
+          provider_ref: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          id?: string
+          plan: string
+          provider?: string
+          provider_ref: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          plan?: string
+          provider?: string
+          provider_ref?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       languages: {
         Row: {
           code: string
@@ -172,9 +208,11 @@ export type Database = {
           email: string | null
           full_name: string | null
           id: string
+          is_premium: boolean
           kid_age: number | null
           kid_name: string | null
           level: string | null
+          premium_until: string | null
           updated_at: string
         }
         Insert: {
@@ -183,9 +221,11 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id: string
+          is_premium?: boolean
           kid_age?: number | null
           kid_name?: string | null
           level?: string | null
+          premium_until?: string | null
           updated_at?: string
         }
         Update: {
@@ -194,9 +234,11 @@ export type Database = {
           email?: string | null
           full_name?: string | null
           id?: string
+          is_premium?: boolean
           kid_age?: number | null
           kid_name?: string | null
           level?: string | null
+          premium_until?: string | null
           updated_at?: string
         }
         Relationships: []
