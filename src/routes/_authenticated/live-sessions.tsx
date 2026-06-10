@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
@@ -39,10 +39,26 @@ function LiveSessionsPage() {
   const [pending, setPending] = useState<{ teacherId: string; at: Date } | null>(null);
   const [booking, setBooking] = useState(false);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     (async () => {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return;
+      // RBAC / Premium gate
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("is_premium, premium_until")
+        .eq("id", u.user.id)
+        .maybeSingle();
+      const premium =
+        !!prof?.is_premium &&
+        (!prof.premium_until || new Date(prof.premium_until).getTime() > Date.now());
+      if (!premium) {
+        toast.error("الجلسات الحيّة متاحة لأعضاء Premium فقط");
+        navigate({ to: "/upgrade" });
+        return;
+      }
       setUserId(u.user.id);
       const [{ data: a }, { data: b }] = await Promise.all([
         supabase.from("teacher_availability").select("id, teacher_id, weekday, start_time, end_time"),
@@ -55,7 +71,7 @@ function LiveSessionsPage() {
       setBookings((b as Booking[]) ?? []);
       setLoading(false);
     })();
-  }, []);
+  }, [navigate]);
 
   const weekStart = useMemo(() => {
     const d = new Date();
