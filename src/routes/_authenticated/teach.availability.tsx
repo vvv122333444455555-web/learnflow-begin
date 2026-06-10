@@ -92,16 +92,18 @@ function TeacherAvailability() {
             <div className="w-16 h-16 rounded-2xl mx-auto mb-5 flex items-center justify-center text-primary-foreground" style={{ background: "var(--gradient-hero)" }}>
               <GraduationCap className="w-8 h-8" />
             </div>
-            <h1 className="text-2xl font-bold mb-2">فعّل حساب المعلّم</h1>
-            <p className="text-muted-foreground mb-6">انضم لطاقم المعلّمين لتحديد مواعيدك الأسبوعية واستقبال الحجوزات.</p>
-            <button
-              onClick={becomeTeacher}
+            <h1 className="text-2xl font-bold mb-2">الوصول مقيّد</h1>
+            <p className="text-muted-foreground mb-6">
+              لوحة المعلّم متاحة فقط للأعضاء الحاصلين على صلاحية «معلّم». يرجى التواصل مع إدارة المنصة لطلب التفعيل.
+            </p>
+            <a
+              href="mailto:support@learnflow.app?subject=طلب%20تفعيل%20حساب%20معلّم"
               className="px-8 py-3 rounded-xl font-semibold text-primary-foreground inline-flex items-center gap-2"
               style={{ background: "var(--gradient-hero)", boxShadow: "var(--shadow-elegant)" }}
             >
               <CheckCircle2 className="w-4 h-4" />
-              تفعيل الآن
-            </button>
+              تواصل مع الإدارة
+            </a>
           </div>
         </div>
       </AppShell>
