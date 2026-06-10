@@ -24,7 +24,8 @@ type Profile = { full_name: string | null; email: string | null };
 type Method = "flouci" | "card" | "gpg";
 
 function CheckoutPage() {
-  const { plan } = Route.useSearch();
+  const search = Route.useSearch() as { plan: "monthly" | "yearly" };
+  const plan = search.plan;
   const navigate = useNavigate();
   const detail = PLAN_DETAILS[plan];
 
