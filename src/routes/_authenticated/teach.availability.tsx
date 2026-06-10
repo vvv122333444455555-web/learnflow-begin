@@ -42,16 +42,7 @@ function TeacherAvailability() {
     })();
   }, []);
 
-  const becomeTeacher = async () => {
-    if (!userId) return;
-    const { error } = await supabase.from("user_roles").insert({ user_id: userId, role: "teacher" });
-    if (error) {
-      toast.error("تعذّر التفعيل");
-      return;
-    }
-    setIsTeacher(true);
-    toast.success("تم تفعيل حساب المعلّم");
-  };
+  // Self-promotion disabled — teacher role must be granted by an admin (RBAC enforced via RLS).
 
   const addSlot = async () => {
     if (!userId) return;
