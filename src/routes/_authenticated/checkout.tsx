@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authenticated/checkout")({
   component: CheckoutPage,
 });
 
-const PLAN_DETAILS = {
+const PLAN_DETAILS: Record<"monthly" | "yearly", { name: string; price: number; period: string; days: number }> = {
   monthly: { name: "اشتراك شهري", price: 49, period: "شهر", days: 30 },
   yearly: { name: "اشتراك سنوي", price: 399, period: "سنة", days: 365 },
 };
