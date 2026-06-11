@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
 import { toast } from "sonner";
-import { Calendar, Plus, Trash2, GraduationCap, Loader2, CheckCircle2 } from "lucide-react";
+import { Calendar, Plus, Trash2, GraduationCap, Loader2, CheckCircle2, Video, Copy, Users } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/teach/availability")({
   head: () => ({ meta: [{ title: "إدارة المواعيد | المعلّم" }] }),
