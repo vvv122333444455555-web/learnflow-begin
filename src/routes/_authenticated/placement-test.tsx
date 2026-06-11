@@ -108,6 +108,13 @@ function PlacementTestPage() {
     let highest = "A1";
     for (const lv of order) if (correctLevels.includes(lv)) highest = lv;
     if (correct === 0) highest = "A1";
+    // English uses the simple LearnFlow scoring band (5 questions):
+    // 1-2 → A1, 3-4 → A2, 5 → B1
+    if (lang === "en") {
+      if (correct <= 2) highest = "A1";
+      else if (correct <= 4) highest = "A2";
+      else highest = "B1";
+    }
     return { correct, total: questions.length, level: highest };
   }, [finished, answers, questions, lang]);
 
