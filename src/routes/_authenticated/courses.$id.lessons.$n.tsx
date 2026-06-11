@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
 import { ArrowRight, ArrowLeft, CheckCircle2, Loader2, PlayCircle, BookOpen } from "lucide-react";
+import { getLessonContent } from "@/data/lesson-content";
+import { LessonContentView } from "@/components/lesson-content-view";
 
 export const Route = createFileRoute("/_authenticated/courses/$id/lessons/$n")({
   head: () => ({ meta: [{ title: "درس | منصة اللغات" }] }),
@@ -131,28 +133,36 @@ function LessonPage() {
               </div>
             </div>
 
-            <section className="p-6 rounded-2xl bg-card border border-border mb-6" style={{ boxShadow: "var(--shadow-soft)" }}>
-              <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                <BookOpen className="w-5 h-5 text-primary" />
-                محتوى الدرس
-              </h2>
-              <div className="prose prose-sm max-w-none text-foreground/90 leading-relaxed space-y-3">
-                <p>
-                  مرحبًا بك في الدرس {lessonNum}. سنتعرّف في هذا الدرس على مفردات وعبارات
-                  أساسية ضمن المستوى <strong>{course.level}</strong>، مع أمثلة عملية وتمارين قصيرة لتثبيت
-                  المعلومة.
-                </p>
-                <ul className="list-disc pr-5 space-y-1">
-                  <li>المفردات الرئيسية للدرس</li>
-                  <li>القاعدة النحوية المستهدفة</li>
-                  <li>أمثلة من الحياة اليومية</li>
-                  <li>تمرين تطبيقي قصير</li>
-                </ul>
-                <p className="text-muted-foreground text-sm">
-                  (المحتوى التفصيلي قيد الإعداد — اضغط "إكمال الدرس" للمتابعة وحفظ تقدّمك.)
-                </p>
-              </div>
-            </section>
+            {(() => {
+              const rich = getLessonContent(course.id, lessonNum);
+              if (rich) {
+                return <div className="mb-6"><LessonContentView content={rich} /></div>;
+              }
+              return (
+                <section className="p-6 rounded-2xl bg-card border border-border mb-6" style={{ boxShadow: "var(--shadow-soft)" }}>
+                  <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
+                    <BookOpen className="w-5 h-5 text-primary" />
+                    محتوى الدرس
+                  </h2>
+                  <div className="prose prose-sm max-w-none text-foreground/90 leading-relaxed space-y-3">
+                    <p>
+                      مرحبًا بك في الدرس {lessonNum}. سنتعرّف في هذا الدرس على مفردات وعبارات
+                      أساسية ضمن المستوى <strong>{course.level}</strong>، مع أمثلة عملية وتمارين قصيرة لتثبيت
+                      المعلومة.
+                    </p>
+                    <ul className="list-disc pr-5 space-y-1">
+                      <li>المفردات الرئيسية للدرس</li>
+                      <li>القاعدة النحوية المستهدفة</li>
+                      <li>أمثلة من الحياة اليومية</li>
+                      <li>تمرين تطبيقي قصير</li>
+                    </ul>
+                    <p className="text-muted-foreground text-sm">
+                      (المحتوى التفصيلي قيد الإعداد — اضغط "إكمال الدرس" للمتابعة وحفظ تقدّمك.)
+                    </p>
+                  </div>
+                </section>
+              );
+            })()}
 
             <div className="flex items-center justify-between gap-3">
               {lessonNum > 1 ? (
