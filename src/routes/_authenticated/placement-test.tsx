@@ -26,12 +26,36 @@ type Q = { q: string; options: string[]; answer: number; level: "A1" | "A2" | "B
 
 const QUESTIONS: Record<Lang, Q[]> = {
   en: [
-    { q: "Hello! ___ name is Sara.", options: ["My", "I", "Me", "Mine"], answer: 0, level: "A1" },
-    { q: "She ___ coffee every morning.", options: ["drink", "drinks", "drinking", "drunk"], answer: 1, level: "A1" },
-    { q: "I ___ to Paris last summer.", options: ["go", "going", "went", "gone"], answer: 2, level: "A2" },
-    { q: "If I ___ rich, I would travel the world.", options: ["am", "was", "were", "be"], answer: 2, level: "B1" },
-    { q: "By next year, she ___ here for a decade.", options: ["will live", "will be living", "will have lived", "lives"], answer: 2, level: "B2" },
-    { q: "Hardly ___ the door when the phone rang.", options: ["I opened", "had I opened", "I had opened", "did I open"], answer: 1, level: "C1" },
+    {
+      q: "Choose the correct word: 'The children are playing with their _______ in the garden.'",
+      options: ["cars", "toys", "books", "tables"],
+      answer: 1,
+      level: "A1",
+    },
+    {
+      q: "Look! Ahmed _______ his homework right now.",
+      options: ["is doing", "does", "did", "has done"],
+      answer: 0,
+      level: "A2",
+    },
+    {
+      q: "Tunis is _______ than Medenine.",
+      options: ["big", "bigger", "biggest", "more big"],
+      answer: 1,
+      level: "A2",
+    },
+    {
+      q: "Read: 'Sarah is 11 years old. She loves swimming and goes to the pool every Sunday.' — When does Sarah go swimming?",
+      options: ["On Fridays", "Every day", "On Sundays", "Never"],
+      answer: 2,
+      level: "B1",
+    },
+    {
+      q: "If I _______ more time, I would join the LearnFlow live session.",
+      options: ["have", "had", "will have", "having"],
+      answer: 1,
+      level: "B1",
+    },
   ],
   fr: [
     { q: "___ m'appelle Marc.", options: ["Je", "Tu", "Il", "Me"], answer: 0, level: "A1" },
@@ -84,6 +108,13 @@ function PlacementTestPage() {
     let highest = "A1";
     for (const lv of order) if (correctLevels.includes(lv)) highest = lv;
     if (correct === 0) highest = "A1";
+    // English uses the simple LearnFlow scoring band (5 questions):
+    // 1-2 → A1, 3-4 → A2, 5 → B1
+    if (lang === "en") {
+      if (correct <= 2) highest = "A1";
+      else if (correct <= 4) highest = "A2";
+      else highest = "B1";
+    }
     return { correct, total: questions.length, level: highest };
   }, [finished, answers, questions, lang]);
 
