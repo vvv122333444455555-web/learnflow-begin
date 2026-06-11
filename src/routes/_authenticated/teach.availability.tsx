@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
 import { toast } from "sonner";
-import { Calendar, Plus, Trash2, GraduationCap, Loader2, CheckCircle2 } from "lucide-react";
+import { Calendar, Plus, Trash2, GraduationCap, Loader2, CheckCircle2, Video, Copy, Users } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/teach/availability")({
   head: () => ({ meta: [{ title: "إدارة المواعيد | المعلّم" }] }),
@@ -13,11 +13,21 @@ export const Route = createFileRoute("/_authenticated/teach/availability")({
 const DAYS = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
 
 type Slot = { id: string; weekday: number; start_time: string; end_time: string };
+type Booking = {
+  id: string;
+  student_id: string;
+  scheduled_at: string;
+  duration_minutes: number;
+  zoom_link: string;
+  status: string;
+  student?: { full_name: string | null; email: string | null } | null;
+};
 
 function TeacherAvailability() {
   const [userId, setUserId] = useState<string | null>(null);
   const [isTeacher, setIsTeacher] = useState(false);
   const [slots, setSlots] = useState<Slot[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [weekday, setWeekday] = useState(1);
   const [startTime, setStartTime] = useState("17:00");
@@ -30,14 +40,36 @@ function TeacherAvailability() {
       if (!u.user) return;
       setUserId(u.user.id);
       const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", u.user.id);
-      setIsTeacher(!!roles?.some((r) => r.role === "teacher"));
-      const { data: s } = await supabase
-        .from("teacher_availability")
-        .select("id, weekday, start_time, end_time")
-        .eq("teacher_id", u.user.id)
-        .order("weekday")
-        .order("start_time");
+      const teacher = !!roles?.some((r) => r.role === "teacher");
+      setIsTeacher(teacher);
+      const [{ data: s }, { data: b }] = await Promise.all([
+        supabase
+          .from("teacher_availability")
+          .select("id, weekday, start_time, end_time")
+          .eq("teacher_id", u.user.id)
+          .order("weekday")
+          .order("start_time"),
+        teacher
+          ? supabase
+              .from("live_sessions")
+              .select("id, student_id, scheduled_at, duration_minutes, zoom_link, status")
+              .eq("teacher_id", u.user.id)
+              .order("scheduled_at", { ascending: true })
+          : Promise.resolve({ data: [] as Booking[] }),
+      ]);
       setSlots((s as Slot[]) ?? []);
+      const rawBookings = (b as Booking[]) ?? [];
+      // Hydrate student profile names in a second query (FK is to auth.users, no embed available)
+      const studentIds = Array.from(new Set(rawBookings.map((x) => x.student_id)));
+      if (studentIds.length > 0) {
+        const { data: profs } = await supabase
+          .from("profiles")
+          .select("id, full_name, email")
+          .in("id", studentIds);
+        const map = new Map((profs ?? []).map((p) => [p.id, p]));
+        for (const bk of rawBookings) bk.student = map.get(bk.student_id) as Booking["student"];
+      }
+      setBookings(rawBookings);
       setLoading(false);
     })();
   }, []);
@@ -111,6 +143,15 @@ function TeacherAvailability() {
   }
 
   const byDay = DAYS.map((_, i) => slots.filter((s) => s.weekday === i));
+  const now = Date.now();
+  const upcomingBookings = bookings.filter((b) => new Date(b.scheduled_at).getTime() >= now);
+
+  const copyLink = (url: string) => {
+    navigator.clipboard?.writeText(url).then(
+      () => toast.success("تم نسخ الرابط"),
+      () => toast.error("تعذّر النسخ"),
+    );
+  };
 
   return (
     <AppShell>
@@ -121,6 +162,43 @@ function TeacherAvailability() {
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold">مواعيدك الأسبوعية</h1>
           <p className="text-muted-foreground mt-2">حدد الأوقات التي يمكن للطلاب حجز جلسات حيّة معك خلالها.</p>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-6 mb-8" style={{ boxShadow: "var(--shadow-soft)" }}>
+          <h2 className="font-semibold mb-4 flex items-center gap-2">
+            <Users className="w-4 h-4 text-primary" /> الحجوزات القادمة
+            <span className="text-xs font-normal text-muted-foreground">({upcomingBookings.length})</span>
+          </h2>
+          {upcomingBookings.length === 0 ? (
+            <p className="text-sm text-muted-foreground">لا توجد حجوزات قادمة بعد. سيظهر الطلاب هنا فور حجزهم.</p>
+          ) : (
+            <ul className="space-y-3">
+              {upcomingBookings.map((b) => {
+                const d = new Date(b.scheduled_at);
+                return (
+                  <li key={b.id} className="flex flex-wrap items-center gap-3 justify-between p-4 rounded-xl bg-muted/60 border border-border">
+                    <div className="min-w-0">
+                      <div className="font-semibold text-sm truncate">
+                        {b.student?.full_name || b.student?.email || "طالب"}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        {d.toLocaleDateString("ar-EG", { weekday: "long", day: "numeric", month: "long" })} • {d.toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" })} • {b.duration_minutes} د
+                      </div>
+                      <div className="text-[11px] font-mono text-muted-foreground/80 truncate mt-1" dir="ltr">{b.zoom_link}</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => copyLink(b.zoom_link)} className="p-2 rounded-lg border border-border hover:bg-background" title="نسخ الرابط">
+                        <Copy className="w-4 h-4" />
+                      </button>
+                      <a href={b.zoom_link} target="_blank" rel="noreferrer" className="px-3 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold inline-flex items-center gap-2">
+                        <Video className="w-4 h-4" /> بدء الجلسة
+                      </a>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-6 mb-8" style={{ boxShadow: "var(--shadow-soft)" }}>
