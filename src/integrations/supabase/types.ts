@@ -299,6 +299,39 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      activate_premium: {
+        Args: {
+          _amount: number
+          _currency: string
+          _days: number
+          _plan: string
+          _provider: string
+          _provider_ref: string
+        }
+        Returns: {
+          invoice_id: string
+          premium_until: string
+        }[]
+      }
+      complete_enrollment: {
+        Args: { _enrollment_id: string }
+        Returns: {
+          completed_lessons: number
+          course_id: string
+          created_at: string
+          id: string
+          progress: number
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "enrollments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

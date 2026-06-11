@@ -80,43 +80,26 @@ function CheckoutPage() {
     // Simulate Flouci/GPG gateway call
     await new Promise((r) => setTimeout(r, 1600));
     const providerRef = `${method.toUpperCase()}-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
-    const premiumUntil = new Date(Date.now() + detail.days * 86400000).toISOString();
 
-    const { data: inv, error: invErr } = await supabase
-      .from("invoices")
-      .insert({
-        user_id: userId,
-        plan: detail.name,
-        amount: detail.price,
-        currency: "TND",
-        status: "paid",
-        provider: method,
-        provider_ref: providerRef,
-      })
-      .select("id")
-      .single();
-
-    if (invErr || !inv) {
-      setProcessing(false);
-      toast.error(invErr?.message ?? "فشلت عملية الدفع");
-      return;
-    }
-
-    const { error: profErr } = await supabase
-      .from("profiles")
-      .update({ is_premium: true, premium_until: premiumUntil })
-      .eq("id", userId);
+    // Server-side controlled activation: creates invoice + flips premium atomically
+    const { data: rpc, error: rpcErr } = await supabase.rpc("activate_premium", {
+      _plan: detail.name,
+      _amount: detail.price,
+      _currency: "TND",
+      _provider: method,
+      _provider_ref: providerRef,
+      _days: detail.days,
+    });
 
     setProcessing(false);
-    if (profErr) {
-      toast.error("تم الدفع لكن تعذّر تحديث الحساب — تواصل مع الدعم");
+    if (rpcErr || !rpc || (Array.isArray(rpc) && rpc.length === 0)) {
+      toast.error(rpcErr?.message ?? "فشلت عملية الدفع");
       return;
     }
-
-    const invoiceNo = inv.id.slice(0, 8).toUpperCase();
+    const row = Array.isArray(rpc) ? rpc[0] : rpc;
+    const invoiceNo = String(row.invoice_id).slice(0, 8).toUpperCase();
     setDone({ invoiceNo, ref: providerRef });
     toast.success("تم الدفع بنجاح! أصبحت عضوًا مميّزًا 🎉");
-    // Auto-download invoice
     setTimeout(() => downloadInvoice(invoiceNo, providerRef), 400);
   };
 
