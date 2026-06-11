@@ -27,6 +27,7 @@ function TeacherAvailability() {
   const [userId, setUserId] = useState<string | null>(null);
   const [isTeacher, setIsTeacher] = useState(false);
   const [slots, setSlots] = useState<Slot[]>([]);
+  const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [weekday, setWeekday] = useState(1);
   const [startTime, setStartTime] = useState("17:00");
@@ -39,14 +40,36 @@ function TeacherAvailability() {
       if (!u.user) return;
       setUserId(u.user.id);
       const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", u.user.id);
-      setIsTeacher(!!roles?.some((r) => r.role === "teacher"));
-      const { data: s } = await supabase
-        .from("teacher_availability")
-        .select("id, weekday, start_time, end_time")
-        .eq("teacher_id", u.user.id)
-        .order("weekday")
-        .order("start_time");
+      const teacher = !!roles?.some((r) => r.role === "teacher");
+      setIsTeacher(teacher);
+      const [{ data: s }, { data: b }] = await Promise.all([
+        supabase
+          .from("teacher_availability")
+          .select("id, weekday, start_time, end_time")
+          .eq("teacher_id", u.user.id)
+          .order("weekday")
+          .order("start_time"),
+        teacher
+          ? supabase
+              .from("live_sessions")
+              .select("id, student_id, scheduled_at, duration_minutes, zoom_link, status")
+              .eq("teacher_id", u.user.id)
+              .order("scheduled_at", { ascending: true })
+          : Promise.resolve({ data: [] as Booking[] }),
+      ]);
       setSlots((s as Slot[]) ?? []);
+      const rawBookings = (b as Booking[]) ?? [];
+      // Hydrate student profile names in a second query (FK is to auth.users, no embed available)
+      const studentIds = Array.from(new Set(rawBookings.map((x) => x.student_id)));
+      if (studentIds.length > 0) {
+        const { data: profs } = await supabase
+          .from("profiles")
+          .select("id, full_name, email")
+          .in("id", studentIds);
+        const map = new Map((profs ?? []).map((p) => [p.id, p]));
+        for (const bk of rawBookings) bk.student = map.get(bk.student_id) as Booking["student"];
+      }
+      setBookings(rawBookings);
       setLoading(false);
     })();
   }, []);
