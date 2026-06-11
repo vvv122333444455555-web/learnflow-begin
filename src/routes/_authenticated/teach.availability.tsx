@@ -13,6 +13,15 @@ export const Route = createFileRoute("/_authenticated/teach/availability")({
 const DAYS = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
 
 type Slot = { id: string; weekday: number; start_time: string; end_time: string };
+type Booking = {
+  id: string;
+  student_id: string;
+  scheduled_at: string;
+  duration_minutes: number;
+  zoom_link: string;
+  status: string;
+  student?: { full_name: string | null; email: string | null } | null;
+};
 
 function TeacherAvailability() {
   const [userId, setUserId] = useState<string | null>(null);
