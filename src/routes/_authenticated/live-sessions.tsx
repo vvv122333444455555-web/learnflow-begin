@@ -178,19 +178,22 @@ function LiveSessionsPage() {
               {upcoming.map((b) => {
                 const d = new Date(b.scheduled_at);
                 return (
-                  <div key={b.id} className="rounded-2xl border border-border bg-card p-5 flex items-center justify-between" style={{ boxShadow: "var(--shadow-soft)" }}>
-                    <div>
-                      <div className="text-sm text-muted-foreground mb-1">{d.toLocaleDateString("ar-EG", { weekday: "long", day: "numeric", month: "long" })}</div>
-                      <div className="font-bold text-lg">{fmtTime(d)}</div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <a href={b.zoom_link} target="_blank" rel="noreferrer" className="px-3 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold inline-flex items-center gap-2">
-                        <Video className="w-4 h-4" /> انضمام
-                      </a>
-                      <button onClick={() => cancelBooking(b.id)} className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-muted">
+                  <div key={b.id} className="rounded-2xl border border-border bg-card p-5" style={{ boxShadow: "var(--shadow-soft)" }}>
+                    <div className="flex items-start justify-between gap-3 mb-3">
+                      <div>
+                        <div className="text-sm text-muted-foreground mb-1">{d.toLocaleDateString("ar-EG", { weekday: "long", day: "numeric", month: "long" })}</div>
+                        <div className="font-bold text-lg">{fmtTime(d)}</div>
+                      </div>
+                      <button onClick={() => cancelBooking(b.id)} className="p-2 rounded-lg text-muted-foreground hover:text-destructive hover:bg-muted" title="إلغاء">
                         <X className="w-4 h-4" />
                       </button>
                     </div>
+                    <div className="rounded-lg bg-muted px-3 py-2 mb-3 text-[11px] font-mono text-muted-foreground truncate" dir="ltr" title={b.zoom_link}>
+                      {b.zoom_link}
+                    </div>
+                    <a href={b.zoom_link} target="_blank" rel="noreferrer" className="w-full px-3 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold inline-flex items-center justify-center gap-2">
+                      <Video className="w-4 h-4" /> الانضمام إلى Zoom
+                    </a>
                   </div>
                 );
               })}
