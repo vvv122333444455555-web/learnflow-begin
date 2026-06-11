@@ -143,6 +143,15 @@ function TeacherAvailability() {
   }
 
   const byDay = DAYS.map((_, i) => slots.filter((s) => s.weekday === i));
+  const now = Date.now();
+  const upcomingBookings = bookings.filter((b) => new Date(b.scheduled_at).getTime() >= now);
+
+  const copyLink = (url: string) => {
+    navigator.clipboard?.writeText(url).then(
+      () => toast.success("تم نسخ الرابط"),
+      () => toast.error("تعذّر النسخ"),
+    );
+  };
 
   return (
     <AppShell>
@@ -153,6 +162,43 @@ function TeacherAvailability() {
           </div>
           <h1 className="text-3xl sm:text-4xl font-bold">مواعيدك الأسبوعية</h1>
           <p className="text-muted-foreground mt-2">حدد الأوقات التي يمكن للطلاب حجز جلسات حيّة معك خلالها.</p>
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-6 mb-8" style={{ boxShadow: "var(--shadow-soft)" }}>
+          <h2 className="font-semibold mb-4 flex items-center gap-2">
+            <Users className="w-4 h-4 text-primary" /> الحجوزات القادمة
+            <span className="text-xs font-normal text-muted-foreground">({upcomingBookings.length})</span>
+          </h2>
+          {upcomingBookings.length === 0 ? (
+            <p className="text-sm text-muted-foreground">لا توجد حجوزات قادمة بعد. سيظهر الطلاب هنا فور حجزهم.</p>
+          ) : (
+            <ul className="space-y-3">
+              {upcomingBookings.map((b) => {
+                const d = new Date(b.scheduled_at);
+                return (
+                  <li key={b.id} className="flex flex-wrap items-center gap-3 justify-between p-4 rounded-xl bg-muted/60 border border-border">
+                    <div className="min-w-0">
+                      <div className="font-semibold text-sm truncate">
+                        {b.student?.full_name || b.student?.email || "طالب"}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-0.5">
+                        {d.toLocaleDateString("ar-EG", { weekday: "long", day: "numeric", month: "long" })} • {d.toLocaleTimeString("ar-EG", { hour: "2-digit", minute: "2-digit" })} • {b.duration_minutes} د
+                      </div>
+                      <div className="text-[11px] font-mono text-muted-foreground/80 truncate mt-1" dir="ltr">{b.zoom_link}</div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => copyLink(b.zoom_link)} className="p-2 rounded-lg border border-border hover:bg-background" title="نسخ الرابط">
+                        <Copy className="w-4 h-4" />
+                      </button>
+                      <a href={b.zoom_link} target="_blank" rel="noreferrer" className="px-3 py-2 rounded-lg bg-primary text-primary-foreground text-sm font-semibold inline-flex items-center gap-2">
+                        <Video className="w-4 h-4" /> بدء الجلسة
+                      </a>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-6 mb-8" style={{ boxShadow: "var(--shadow-soft)" }}>
