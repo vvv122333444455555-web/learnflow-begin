@@ -116,7 +116,7 @@ function WidgetBuilderPage() {
         title: title.trim(),
         description: description.trim() || null,
         language_id: languageId || null,
-        content: content as unknown as Record<string, unknown>,
+        content: content as unknown as never,
         is_published: true,
       })
       .select()
