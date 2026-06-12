@@ -21,6 +21,7 @@ import { Route as AuthenticatedInvoicesRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCoursesRouteImport } from './routes/_authenticated/courses'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
+import { Route as AuthenticatedTeachWidgetsRouteImport } from './routes/_authenticated/teach.widgets'
 import { Route as AuthenticatedTeachAvailabilityRouteImport } from './routes/_authenticated/teach.availability'
 import { Route as AuthenticatedCoursesIdRouteImport } from './routes/_authenticated/courses.$id'
 import { Route as AuthenticatedCoursesIdLessonsNRouteImport } from './routes/_authenticated/courses.$id.lessons.$n'
@@ -86,6 +87,12 @@ const AuthenticatedCheckoutRoute = AuthenticatedCheckoutRouteImport.update({
   path: '/checkout',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedTeachWidgetsRoute =
+  AuthenticatedTeachWidgetsRouteImport.update({
+    id: '/teach/widgets',
+    path: '/teach/widgets',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedTeachAvailabilityRoute =
   AuthenticatedTeachAvailabilityRouteImport.update({
     id: '/teach/availability',
@@ -118,6 +125,7 @@ export interface FileRoutesByFullPath {
   '/upgrade': typeof AuthenticatedUpgradeRoute
   '/courses/$id': typeof AuthenticatedCoursesIdRouteWithChildren
   '/teach/availability': typeof AuthenticatedTeachAvailabilityRoute
+  '/teach/widgets': typeof AuthenticatedTeachWidgetsRoute
   '/courses/$id/lessons/$n': typeof AuthenticatedCoursesIdLessonsNRoute
 }
 export interface FileRoutesByTo {
@@ -134,6 +142,7 @@ export interface FileRoutesByTo {
   '/upgrade': typeof AuthenticatedUpgradeRoute
   '/courses/$id': typeof AuthenticatedCoursesIdRouteWithChildren
   '/teach/availability': typeof AuthenticatedTeachAvailabilityRoute
+  '/teach/widgets': typeof AuthenticatedTeachWidgetsRoute
   '/courses/$id/lessons/$n': typeof AuthenticatedCoursesIdLessonsNRoute
 }
 export interface FileRoutesById {
@@ -152,6 +161,7 @@ export interface FileRoutesById {
   '/_authenticated/upgrade': typeof AuthenticatedUpgradeRoute
   '/_authenticated/courses/$id': typeof AuthenticatedCoursesIdRouteWithChildren
   '/_authenticated/teach/availability': typeof AuthenticatedTeachAvailabilityRoute
+  '/_authenticated/teach/widgets': typeof AuthenticatedTeachWidgetsRoute
   '/_authenticated/courses/$id/lessons/$n': typeof AuthenticatedCoursesIdLessonsNRoute
 }
 export interface FileRouteTypes {
@@ -170,6 +180,7 @@ export interface FileRouteTypes {
     | '/upgrade'
     | '/courses/$id'
     | '/teach/availability'
+    | '/teach/widgets'
     | '/courses/$id/lessons/$n'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -186,6 +197,7 @@ export interface FileRouteTypes {
     | '/upgrade'
     | '/courses/$id'
     | '/teach/availability'
+    | '/teach/widgets'
     | '/courses/$id/lessons/$n'
   id:
     | '__root__'
@@ -203,6 +215,7 @@ export interface FileRouteTypes {
     | '/_authenticated/upgrade'
     | '/_authenticated/courses/$id'
     | '/_authenticated/teach/availability'
+    | '/_authenticated/teach/widgets'
     | '/_authenticated/courses/$id/lessons/$n'
   fileRoutesById: FileRoutesById
 }
@@ -298,6 +311,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCheckoutRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/teach/widgets': {
+      id: '/_authenticated/teach/widgets'
+      path: '/teach/widgets'
+      fullPath: '/teach/widgets'
+      preLoaderRoute: typeof AuthenticatedTeachWidgetsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/teach/availability': {
       id: '/_authenticated/teach/availability'
       path: '/teach/availability'
@@ -358,6 +378,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPlacementTestRoute: typeof AuthenticatedPlacementTestRoute
   AuthenticatedUpgradeRoute: typeof AuthenticatedUpgradeRoute
   AuthenticatedTeachAvailabilityRoute: typeof AuthenticatedTeachAvailabilityRoute
+  AuthenticatedTeachWidgetsRoute: typeof AuthenticatedTeachWidgetsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -371,6 +392,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPlacementTestRoute: AuthenticatedPlacementTestRoute,
   AuthenticatedUpgradeRoute: AuthenticatedUpgradeRoute,
   AuthenticatedTeachAvailabilityRoute: AuthenticatedTeachAvailabilityRoute,
+  AuthenticatedTeachWidgetsRoute: AuthenticatedTeachWidgetsRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

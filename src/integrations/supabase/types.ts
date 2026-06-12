@@ -273,6 +273,53 @@ export type Database = {
         }
         Relationships: []
       }
+      teacher_widgets: {
+        Row: {
+          content: Json
+          created_at: string
+          description: string | null
+          id: string
+          is_published: boolean
+          language_id: string | null
+          teacher_id: string
+          title: string
+          updated_at: string
+          widget_type: string
+        }
+        Insert: {
+          content?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_published?: boolean
+          language_id?: string | null
+          teacher_id: string
+          title: string
+          updated_at?: string
+          widget_type: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_published?: boolean
+          language_id?: string | null
+          teacher_id?: string
+          title?: string
+          updated_at?: string
+          widget_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teacher_widgets_language_id_fkey"
+            columns: ["language_id"]
+            isOneToOne: false
+            referencedRelation: "languages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
