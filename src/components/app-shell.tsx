@@ -34,7 +34,10 @@ export function AppShell({ children }: { children: ReactNode }) {
     { to: "/placement-test", label: "اختبار المستوى", icon: Sparkles },
     { to: "/live-sessions", label: "الجلسات الحيّة", icon: Video, premium: true },
     { to: "/invoices", label: "الفواتير", icon: Receipt },
-    ...(isTeacher ? [{ to: "/teach/availability", label: "لوحة المعلّم", icon: CalendarCog }] : []),
+    ...(isTeacher ? [
+      { to: "/teach/availability", label: "لوحة المعلّم", icon: CalendarCog },
+      { to: "/teach/widgets", label: "منشئ النشاطات", icon: Wand2 },
+    ] : []),
   ];
 
   const signOut = async () => {
