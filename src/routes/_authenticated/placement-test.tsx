@@ -74,6 +74,14 @@ const QUESTIONS: Record<Lang, Q[]> = {
     { q: "Das Buch, ___ ich gelesen habe, war spannend.", options: ["der", "die", "das", "den"], answer: 2, level: "B2" },
     { q: "___ des schlechten Wetters fand das Fest statt.", options: ["Wegen", "Trotz", "Während", "Statt"], answer: 1, level: "C1" },
   ],
+  it: [
+    { q: "Ciao, ___ chiamo Marco.", options: ["mi", "ti", "si", "lo"], answer: 0, level: "A1" },
+    { q: "Noi ___ italiani.", options: ["sono", "siamo", "siete", "è"], answer: 1, level: "A1" },
+    { q: "Ieri ___ andato al cinema.", options: ["ho", "sono", "ero", "avevo"], answer: 1, level: "A2" },
+    { q: "Se avessi tempo, ___ con te.", options: ["vengo", "verrò", "verrei", "venivo"], answer: 2, level: "B1" },
+    { q: "Penso che lui ___ ragione.", options: ["ha", "abbia", "avrà", "aveva"], answer: 1, level: "B2" },
+    { q: "___ il maltempo, la festa si è svolta.", options: ["A causa di", "Nonostante", "Durante", "Invece di"], answer: 1, level: "C1" },
+  ],
 };
 
 const LEVEL_INFO: Record<string, { title: string; desc: string; recommend: string }> = {
