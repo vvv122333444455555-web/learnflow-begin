@@ -14,12 +14,13 @@ export const Route = createFileRoute("/_authenticated/placement-test")({
   component: PlacementTestPage,
 });
 
-type Lang = "en" | "fr" | "de";
+type Lang = "en" | "fr" | "de" | "it";
 
 const LANGS: { code: Lang; name: string; flag: string; gradient: string }[] = [
   { code: "en", name: "الإنجليزية", flag: "🇬🇧", gradient: "from-blue-500 to-indigo-600" },
   { code: "fr", name: "الفرنسية", flag: "🇫🇷", gradient: "from-rose-500 to-pink-600" },
   { code: "de", name: "الألمانية", flag: "🇩🇪", gradient: "from-amber-500 to-orange-600" },
+  { code: "it", name: "الإيطالية", flag: "🇮🇹", gradient: "from-emerald-500 to-green-600" },
 ];
 
 type Q = { q: string; options: string[]; answer: number; level: "A1" | "A2" | "B1" | "B2" | "C1" };
