@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Languages, LayoutDashboard, BookOpen, GraduationCap, LogOut, Library, Sparkles, Video, CalendarCog, Crown, Receipt, Wand2, Presentation, BookMarked } from "lucide-react";
+import { Languages, LayoutDashboard, BookOpen, GraduationCap, LogOut, Library, Sparkles, Video, Crown, Receipt, Wand2, Presentation, BookMarked } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
