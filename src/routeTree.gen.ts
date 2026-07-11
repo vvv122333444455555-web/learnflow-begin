@@ -23,6 +23,7 @@ import { Route as AuthenticatedCoursesRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
 import { Route as AuthenticatedTeachWidgetsRouteImport } from './routes/_authenticated/teach.widgets'
 import { Route as AuthenticatedTeachAvailabilityRouteImport } from './routes/_authenticated/teach.availability'
+import { Route as AuthenticatedCurriculumTunisianRouteImport } from './routes/_authenticated/curriculum.tunisian'
 import { Route as AuthenticatedCoursesIdRouteImport } from './routes/_authenticated/courses.$id'
 import { Route as AuthenticatedCoursesIdLessonsNRouteImport } from './routes/_authenticated/courses.$id.lessons.$n'
 
@@ -99,6 +100,12 @@ const AuthenticatedTeachAvailabilityRoute =
     path: '/teach/availability',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedCurriculumTunisianRoute =
+  AuthenticatedCurriculumTunisianRouteImport.update({
+    id: '/curriculum/tunisian',
+    path: '/curriculum/tunisian',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCoursesIdRoute = AuthenticatedCoursesIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -124,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/placement-test': typeof AuthenticatedPlacementTestRoute
   '/upgrade': typeof AuthenticatedUpgradeRoute
   '/courses/$id': typeof AuthenticatedCoursesIdRouteWithChildren
+  '/curriculum/tunisian': typeof AuthenticatedCurriculumTunisianRoute
   '/teach/availability': typeof AuthenticatedTeachAvailabilityRoute
   '/teach/widgets': typeof AuthenticatedTeachWidgetsRoute
   '/courses/$id/lessons/$n': typeof AuthenticatedCoursesIdLessonsNRoute
@@ -141,6 +149,7 @@ export interface FileRoutesByTo {
   '/placement-test': typeof AuthenticatedPlacementTestRoute
   '/upgrade': typeof AuthenticatedUpgradeRoute
   '/courses/$id': typeof AuthenticatedCoursesIdRouteWithChildren
+  '/curriculum/tunisian': typeof AuthenticatedCurriculumTunisianRoute
   '/teach/availability': typeof AuthenticatedTeachAvailabilityRoute
   '/teach/widgets': typeof AuthenticatedTeachWidgetsRoute
   '/courses/$id/lessons/$n': typeof AuthenticatedCoursesIdLessonsNRoute
@@ -160,6 +169,7 @@ export interface FileRoutesById {
   '/_authenticated/placement-test': typeof AuthenticatedPlacementTestRoute
   '/_authenticated/upgrade': typeof AuthenticatedUpgradeRoute
   '/_authenticated/courses/$id': typeof AuthenticatedCoursesIdRouteWithChildren
+  '/_authenticated/curriculum/tunisian': typeof AuthenticatedCurriculumTunisianRoute
   '/_authenticated/teach/availability': typeof AuthenticatedTeachAvailabilityRoute
   '/_authenticated/teach/widgets': typeof AuthenticatedTeachWidgetsRoute
   '/_authenticated/courses/$id/lessons/$n': typeof AuthenticatedCoursesIdLessonsNRoute
@@ -179,6 +189,7 @@ export interface FileRouteTypes {
     | '/placement-test'
     | '/upgrade'
     | '/courses/$id'
+    | '/curriculum/tunisian'
     | '/teach/availability'
     | '/teach/widgets'
     | '/courses/$id/lessons/$n'
@@ -196,6 +207,7 @@ export interface FileRouteTypes {
     | '/placement-test'
     | '/upgrade'
     | '/courses/$id'
+    | '/curriculum/tunisian'
     | '/teach/availability'
     | '/teach/widgets'
     | '/courses/$id/lessons/$n'
@@ -214,6 +226,7 @@ export interface FileRouteTypes {
     | '/_authenticated/placement-test'
     | '/_authenticated/upgrade'
     | '/_authenticated/courses/$id'
+    | '/_authenticated/curriculum/tunisian'
     | '/_authenticated/teach/availability'
     | '/_authenticated/teach/widgets'
     | '/_authenticated/courses/$id/lessons/$n'
@@ -325,6 +338,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTeachAvailabilityRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/curriculum/tunisian': {
+      id: '/_authenticated/curriculum/tunisian'
+      path: '/curriculum/tunisian'
+      fullPath: '/curriculum/tunisian'
+      preLoaderRoute: typeof AuthenticatedCurriculumTunisianRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/courses/$id': {
       id: '/_authenticated/courses/$id'
       path: '/$id'
@@ -377,6 +397,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMyCoursesRoute: typeof AuthenticatedMyCoursesRoute
   AuthenticatedPlacementTestRoute: typeof AuthenticatedPlacementTestRoute
   AuthenticatedUpgradeRoute: typeof AuthenticatedUpgradeRoute
+  AuthenticatedCurriculumTunisianRoute: typeof AuthenticatedCurriculumTunisianRoute
   AuthenticatedTeachAvailabilityRoute: typeof AuthenticatedTeachAvailabilityRoute
   AuthenticatedTeachWidgetsRoute: typeof AuthenticatedTeachWidgetsRoute
 }
@@ -391,6 +412,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMyCoursesRoute: AuthenticatedMyCoursesRoute,
   AuthenticatedPlacementTestRoute: AuthenticatedPlacementTestRoute,
   AuthenticatedUpgradeRoute: AuthenticatedUpgradeRoute,
+  AuthenticatedCurriculumTunisianRoute: AuthenticatedCurriculumTunisianRoute,
   AuthenticatedTeachAvailabilityRoute: AuthenticatedTeachAvailabilityRoute,
   AuthenticatedTeachWidgetsRoute: AuthenticatedTeachWidgetsRoute,
 }
@@ -406,13 +428,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

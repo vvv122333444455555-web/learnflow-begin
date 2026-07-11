@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Languages, LayoutDashboard, BookOpen, GraduationCap, LogOut, Library, Sparkles, Video, CalendarCog, Crown, Receipt, Wand2 } from "lucide-react";
+import { Languages, LayoutDashboard, BookOpen, GraduationCap, LogOut, Library, Sparkles, Video, Crown, Receipt, Wand2, Presentation, BookMarked } from "lucide-react";
 import { useEffect, useState, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -32,10 +32,11 @@ export function AppShell({ children }: { children: ReactNode }) {
     { to: "/my-courses", label: "دوراتي", icon: Library },
     { to: "/level", label: "مستواي", icon: GraduationCap },
     { to: "/placement-test", label: "اختبار المستوى", icon: Sparkles },
+    { to: "/curriculum/tunisian", label: "بنك المناهج التونسية 🇹🇳", icon: BookMarked },
     { to: "/live-sessions", label: "الجلسات الحيّة", icon: Video, premium: true },
     { to: "/invoices", label: "الفواتير", icon: Receipt },
     ...(isTeacher ? [
-      { to: "/teach/availability", label: "لوحة المعلّم", icon: CalendarCog },
+      { to: "/teach/availability", label: "بوابة المعلّم", icon: Presentation },
       { to: "/teach/widgets", label: "منشئ النشاطات", icon: Wand2 },
     ] : []),
   ];
