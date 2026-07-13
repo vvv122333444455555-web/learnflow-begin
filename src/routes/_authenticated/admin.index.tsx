@@ -36,7 +36,7 @@ function AdminDash() {
   })(); }, [navigate]);
 
   const generate = async () => {
-    const { data, error } = await supabase.rpc("generate_teacher_code", { _expires_at: null });
+    const { data, error } = await supabase.rpc("generate_teacher_code", {});
     if (error) return toast.error(error.message);
     toast.success(`تم إنشاء: ${data}`); load();
   };
