@@ -14,6 +14,68 @@ export type Database = {
   }
   public: {
     Tables: {
+      class_members: {
+        Row: {
+          class_id: string
+          created_at: string
+          id: string
+          student_id: string
+        }
+        Insert: {
+          class_id: string
+          created_at?: string
+          id?: string
+          student_id: string
+        }
+        Update: {
+          class_id?: string
+          created_at?: string
+          id?: string
+          student_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "class_members_class_id_fkey"
+            columns: ["class_id"]
+            isOneToOne: false
+            referencedRelation: "classes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      classes: {
+        Row: {
+          created_at: string
+          id: string
+          language: string | null
+          level: string | null
+          name: string
+          teacher_id: string
+          track: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          language?: string | null
+          level?: string | null
+          name: string
+          teacher_id: string
+          track?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          language?: string | null
+          level?: string | null
+          name?: string
+          teacher_id?: string
+          track?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       courses: {
         Row: {
           created_at: string
@@ -101,6 +163,121 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      exercise_assignments: {
+        Row: {
+          created_at: string
+          due_at: string | null
+          exercise_id: string
+          id: string
+          target_id: string
+          target_type: string
+        }
+        Insert: {
+          created_at?: string
+          due_at?: string | null
+          exercise_id: string
+          id?: string
+          target_id: string
+          target_type: string
+        }
+        Update: {
+          created_at?: string
+          due_at?: string | null
+          exercise_id?: string
+          id?: string
+          target_id?: string
+          target_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercise_assignments_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "exercises"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exercise_submissions: {
+        Row: {
+          answers: Json
+          attempt_number: number
+          exercise_id: string
+          id: string
+          max_score: number
+          score: number
+          student_id: string
+          submitted_at: string
+        }
+        Insert: {
+          answers?: Json
+          attempt_number?: number
+          exercise_id: string
+          id?: string
+          max_score?: number
+          score?: number
+          student_id: string
+          submitted_at?: string
+        }
+        Update: {
+          answers?: Json
+          attempt_number?: number
+          exercise_id?: string
+          id?: string
+          max_score?: number
+          score?: number
+          student_id?: string
+          submitted_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercise_submissions_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "exercises"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      exercises: {
+        Row: {
+          content: Json
+          created_at: string
+          id: string
+          max_attempts: number
+          published: boolean
+          teacher_id: string
+          time_limit_sec: number | null
+          title: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          content?: Json
+          created_at?: string
+          id?: string
+          max_attempts?: number
+          published?: boolean
+          teacher_id: string
+          time_limit_sec?: number | null
+          title: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          content?: Json
+          created_at?: string
+          id?: string
+          max_attempts?: number
+          published?: boolean
+          teacher_id?: string
+          time_limit_sec?: number | null
+          title?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       invoices: {
         Row: {
@@ -201,9 +378,40 @@ export type Database = {
         }
         Relationships: []
       }
+      messages: {
+        Row: {
+          body: string
+          created_at: string
+          id: string
+          read_at: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Insert: {
+          body: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          id?: string
+          read_at?: string | null
+          recipient_id?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           account_type: string
+          avatar_url: string | null
+          badges: Json
+          bio: string | null
+          cefr_level: string | null
           created_at: string
           email: string | null
           full_name: string | null
@@ -211,12 +419,22 @@ export type Database = {
           is_premium: boolean
           kid_age: number | null
           kid_name: string | null
+          learning_goal: string | null
           level: string | null
+          parent_id: string | null
+          points: number
           premium_until: string | null
+          specialty_language: string | null
+          teacher_profile_completed: boolean
+          track: string | null
           updated_at: string
         }
         Insert: {
           account_type?: string
+          avatar_url?: string | null
+          badges?: Json
+          bio?: string | null
+          cefr_level?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -224,12 +442,22 @@ export type Database = {
           is_premium?: boolean
           kid_age?: number | null
           kid_name?: string | null
+          learning_goal?: string | null
           level?: string | null
+          parent_id?: string | null
+          points?: number
           premium_until?: string | null
+          specialty_language?: string | null
+          teacher_profile_completed?: boolean
+          track?: string | null
           updated_at?: string
         }
         Update: {
           account_type?: string
+          avatar_url?: string | null
+          badges?: Json
+          bio?: string | null
+          cefr_level?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -237,8 +465,49 @@ export type Database = {
           is_premium?: boolean
           kid_age?: number | null
           kid_name?: string | null
+          learning_goal?: string | null
           level?: string | null
+          parent_id?: string | null
+          points?: number
           premium_until?: string | null
+          specialty_language?: string | null
+          teacher_profile_completed?: boolean
+          track?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      progress: {
+        Row: {
+          id: string
+          language: string | null
+          score: number
+          skill: string
+          student_id: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          language?: string | null
+          score?: number
+          skill: string
+          student_id: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          language?: string | null
+          score?: number
+          skill?: string
+          student_id?: string
           updated_at?: string
         }
         Relationships: []
@@ -270,6 +539,39 @@ export type Database = {
           teacher_id?: string
           updated_at?: string
           weekday?: number
+        }
+        Relationships: []
+      }
+      teacher_codes: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          used_at: string | null
+          used_by: string | null
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          used_at?: string | null
+          used_by?: string | null
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          used_at?: string | null
+          used_by?: string | null
         }
         Relationships: []
       }
@@ -379,12 +681,30 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      complete_teacher_profile: {
+        Args: {
+          _avatar: string
+          _bio: string
+          _full_name: string
+          _specialty: string
+        }
+        Returns: undefined
+      }
+      generate_teacher_code: { Args: { _expires_at?: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
+      }
+      redeem_teacher_code: { Args: { _code: string }; Returns: undefined }
+      submit_exercise: {
+        Args: { _answers: Json; _exercise_id: string }
+        Returns: {
+          max_score: number
+          score: number
+        }[]
       }
     }
     Enums: {
