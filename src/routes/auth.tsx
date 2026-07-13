@@ -1,36 +1,42 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Mail, Lock, User, Languages, Sparkles, Loader2, GraduationCap, Baby } from "lucide-react";
+import { z } from "zod";
+import { Mail, Lock, User, Languages, Sparkles, Loader2, Baby, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
 
+const search = z.object({
+  track: z.enum(["kids", "adults"]).optional(),
+});
+
 export const Route = createFileRoute("/auth")({
+  validateSearch: search,
   head: () => ({
     meta: [
-      { title: "تسجيل الدخول | منصة اللغات" },
-      { name: "description", content: "سجّل الدخول إلى منصتك لتعلّم اللغات بأسلوب تفاعلي وممتع." },
+      { title: "تسجيل الدخول | LearnFlow" },
+      { name: "description", content: "سجّل الدخول أو أنشئ حسابك في LearnFlow." },
     ],
   }),
   component: AuthPage,
 });
 
-type AccountType = "adult" | "parent";
-
 function AuthPage() {
-  const [mode, setMode] = useState<"login" | "signup">("login");
-  const [accountType, setAccountType] = useState<AccountType>("adult");
+  const { track: trackParam } = Route.useSearch();
+  const [mode, setMode] = useState<"login" | "signup">(trackParam ? "signup" : "login");
+  const [track, setTrack] = useState<"kids" | "adults">(trackParam ?? "adults");
+  const [isParent, setIsParent] = useState(false);
   const [fullName, setFullName] = useState("");
-  const [kidName, setKidName] = useState("");
-  const [kidAge, setKidAge] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => {
-      if (data.user) navigate({ to: "/level" });
+    supabase.auth.getUser().then(async ({ data }) => {
+      if (!data.user) return;
+      const { data: p } = await supabase.from("profiles").select("track").eq("id", data.user.id).maybeSingle();
+      navigate({ to: p?.track === "kids" ? "/kids" : "/adults" });
     });
   }, [navigate]);
 
@@ -40,259 +46,163 @@ function AuthPage() {
     try {
       if (mode === "signup") {
         const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: `${window.location.origin}/level`,
-            data: { full_name: fullName },
-          },
+          email, password,
+          options: { emailRedirectTo: `${window.location.origin}/`, data: { full_name: fullName } },
         });
         if (error) throw error;
-
         if (data.user) {
           await supabase.from("profiles").update({
-            account_type: accountType,
-            kid_name: accountType === "parent" ? kidName : null,
-            kid_age: accountType === "parent" && kidAge ? Number(kidAge) : null,
+            track,
+            account_type: track === "kids" && isParent ? "parent" : "adult",
           }).eq("id", data.user.id);
         }
-
-        toast.success("تم إنشاء حسابك! تحقّق من بريدك لتأكيد التسجيل.");
-        if (data.session) navigate({ to: "/level" });
+        toast.success("تم إنشاء الحساب!");
+        if (data.session) navigate({ to: track === "kids" ? "/kids" : "/adults" });
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        navigate({ to: "/dashboard" });
+        const { data: u } = await supabase.auth.getUser();
+        const { data: p } = await supabase.from("profiles").select("track").eq("id", u.user!.id).maybeSingle();
+        navigate({ to: p?.track === "kids" ? "/kids" : "/adults" });
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : "حدث خطأ ما";
+      const message = err instanceof Error ? err.message : "خطأ";
       toast.error(
         message.includes("Invalid login") ? "بيانات الدخول غير صحيحة" :
-        message.includes("already registered") ? "هذا البريد مسجّل مسبقًا" :
-        message
+        message.includes("already registered") ? "هذا البريد مسجّل مسبقًا" : message
       );
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
 
   const onGoogle = async () => {
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: `${window.location.origin}/level`,
-    });
-    if (result.error) {
-      toast.error("تعذّر تسجيل الدخول عبر Google");
-      return;
-    }
-    if (result.redirected) return;
-    navigate({ to: "/level" });
+    const result = await lovable.auth.signInWithOAuth("google", { redirect_uri: `${window.location.origin}/` });
+    if (result.error) toast.error("تعذّر الدخول عبر Google");
   };
+
+  const kidsUI = track === "kids";
 
   return (
     <div className="min-h-screen flex" dir="rtl">
-      <div className="hidden lg:flex relative w-1/2 overflow-hidden" style={{ background: "var(--gradient-hero)" }}>
-        <div className="absolute inset-0 opacity-20" style={{
-          backgroundImage: "radial-gradient(circle at 20% 20%, white 1px, transparent 1px), radial-gradient(circle at 80% 70%, white 1px, transparent 1px)",
-          backgroundSize: "60px 60px, 90px 90px",
-        }} />
+      <div className="hidden lg:flex relative w-1/2" style={{ background: kidsUI ? "linear-gradient(135deg, #FF6B9D, #FEC260)" : "var(--gradient-hero)" }}>
         <div className="relative z-10 flex flex-col justify-between p-12 text-white w-full">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-2xl bg-white/15 backdrop-blur flex items-center justify-center">
               <Languages className="w-6 h-6" />
             </div>
-            <span className="text-xl font-bold">لغات</span>
+            <span className="text-xl font-bold">LearnFlow</span>
           </div>
           <div className="space-y-6">
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/15 backdrop-blur text-sm">
-              <Sparkles className="w-4 h-4" />
-              تعلّم بذكاء، تحدّث بثقة
+              <Sparkles className="w-4 h-4" /> {kidsUI ? "لنلعب ونتعلّم معًا!" : "تعلّم بذكاء، تحدّث بثقة"}
             </div>
             <h1 className="text-5xl font-bold leading-tight">
-              ابدأ رحلتك<br />نحو إتقان لغة جديدة
+              {kidsUI ? <>مغامرة لغوية<br/>ممتعة لطفلك</> : <>ابدأ رحلتك<br/>نحو إتقان لغة جديدة</>}
             </h1>
-            <p className="text-white/85 text-lg max-w-md leading-relaxed">
-              دروس تفاعلية للكبار، ومسارات ممتعة ومسلية للأطفال — لكل عمر طريقته.
+            <p className="text-white/85 text-lg max-w-md">
+              {kidsUI ? "نقاط، شارات، وشخصيات مرحة تجعل التعلّم متعة." : "مسارات موجّهة، تقييم CEFR دقيق، ومعلّمون متخصصون."}
             </p>
           </div>
-          <div className="grid grid-cols-3 gap-6 text-white/90">
-            {[{ n: "+12", l: "لغة" }, { n: "+300", l: "دورة" }, { n: "+50k", l: "متعلّم" }].map((s) => (
-              <div key={s.l}>
-                <div className="text-3xl font-bold">{s.n}</div>
-                <div className="text-sm text-white/70">{s.l}</div>
-              </div>
-            ))}
-          </div>
+          <div className="text-white/70 text-sm">© LearnFlow · تونس</div>
         </div>
       </div>
 
       <div className="flex-1 flex items-center justify-center p-6 sm:p-12 bg-background">
         <div className="w-full max-w-md">
-          <div className="lg:hidden mb-8 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-foreground">
-              <Languages className="w-5 h-5" />
-            </div>
-            <span className="text-lg font-bold">لغات</span>
-          </div>
-
-          <div className="mb-8">
+          <div className="mb-6">
             <h2 className="text-3xl font-bold text-foreground">
-              {mode === "login" ? "مرحبًا بعودتك" : "أنشئ حسابك"}
+              {mode === "login" ? "مرحبًا بعودتك" : (kidsUI ? "هيا نبدأ! 🚀" : "أنشئ حسابك")}
             </h2>
             <p className="text-muted-foreground mt-2">
-              {mode === "login" ? "سجّل الدخول لمتابعة دروسك وتقدّمك." : "خطوات قليلة وتبدأ التعلّم اليوم."}
+              {mode === "login" ? "سجّل الدخول للمتابعة" : `أنت تنشئ حساب ${kidsUI ? "الأطفال 🎨" : "الكبار 💼"}`}
             </p>
           </div>
 
-          <div className="grid grid-cols-2 p-1 bg-muted rounded-xl mb-6">
+          <div className="grid grid-cols-2 p-1 bg-muted rounded-xl mb-4">
             {(["login", "signup"] as const).map((m) => (
-              <button
-                key={m}
-                onClick={() => setMode(m)}
-                className={`py-2.5 text-sm font-medium rounded-lg transition-all ${
-                  mode === m ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
+              <button key={m} onClick={() => setMode(m)}
+                className={`py-2.5 text-sm font-medium rounded-lg ${mode === m ? "bg-background shadow-sm" : "text-muted-foreground"}`}>
                 {m === "login" ? "تسجيل الدخول" : "حساب جديد"}
               </button>
             ))}
           </div>
 
-          <form onSubmit={onSubmit} className="space-y-4">
+          {mode === "signup" && (
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <TrackBtn active={track === "adults"} onClick={() => { setTrack("adults"); setIsParent(false); }}
+                icon="💼" label="كبار" />
+              <TrackBtn active={track === "kids"} onClick={() => setTrack("kids")}
+                icon="🎨" label="أطفال" />
+            </div>
+          )}
+
+          {mode === "signup" && track === "kids" && (
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <SubType active={!isParent} onClick={() => setIsParent(false)} icon={<Baby className="w-4 h-4"/>} label="حساب طفل" />
+              <SubType active={isParent} onClick={() => setIsParent(true)} icon={<Users className="w-4 h-4"/>} label="حساب ولي أمر" />
+            </div>
+          )}
+
+          <form onSubmit={onSubmit} className="space-y-3">
             {mode === "signup" && (
-              <>
-                <div>
-                  <span className="text-sm font-medium text-foreground mb-1.5 block">نوع الحساب</span>
-                  <div className="grid grid-cols-2 gap-3">
-                    <TypeCard
-                      active={accountType === "adult"}
-                      onClick={() => setAccountType("adult")}
-                      icon={<GraduationCap className="w-5 h-5" />}
-                      title="طالب (بالغ)"
-                      desc="أتعلّم لنفسي"
-                    />
-                    <TypeCard
-                      active={accountType === "parent"}
-                      onClick={() => setAccountType("parent")}
-                      icon={<Baby className="w-5 h-5" />}
-                      title="وليّ أمر"
-                      desc="لطفلي"
-                    />
-                  </div>
-                </div>
-
-                <Field icon={<User className="w-4 h-4" />} label="الاسم الكامل" type="text" placeholder="محمد أحمد" value={fullName} onChange={setFullName} required />
-
-                {accountType === "parent" && (
-                  <div className="grid grid-cols-3 gap-3">
-                    <div className="col-span-2">
-                      <Field icon={<Baby className="w-4 h-4" />} label="اسم الطفل" type="text" placeholder="سارة" value={kidName} onChange={setKidName} required />
-                    </div>
-                    <div>
-                      <label className="block">
-                        <span className="text-sm font-medium text-foreground mb-1.5 block">العمر</span>
-                        <input
-                          type="number"
-                          min={3}
-                          max={17}
-                          placeholder="8"
-                          value={kidAge}
-                          onChange={(e) => setKidAge(e.target.value)}
-                          required
-                          className="w-full px-4 py-3 rounded-xl border border-input bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-ring transition"
-                        />
-                      </label>
-                    </div>
-                  </div>
-                )}
-              </>
+              <Field icon={<User className="w-4 h-4"/>} label="الاسم الكامل" type="text" placeholder="محمد أحمد" value={fullName} onChange={setFullName} required />
             )}
-            <Field icon={<Mail className="w-4 h-4" />} label="البريد الإلكتروني" type="email" placeholder="you@example.com" value={email} onChange={setEmail} required />
-            <Field icon={<Lock className="w-4 h-4" />} label="كلمة المرور" type="password" placeholder="••••••••" value={password} onChange={setPassword} required />
+            <Field icon={<Mail className="w-4 h-4"/>} label="البريد الإلكتروني" type="email" placeholder="you@example.com" value={email} onChange={setEmail} required />
+            <Field icon={<Lock className="w-4 h-4"/>} label="كلمة المرور" type="password" placeholder="••••••••" value={password} onChange={setPassword} required />
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 rounded-xl font-semibold text-primary-foreground transition-all hover:opacity-95 active:scale-[0.99] disabled:opacity-60 inline-flex items-center justify-center gap-2"
-              style={{ background: "var(--gradient-hero)", boxShadow: "var(--shadow-elegant)" }}
-            >
-              {loading && <Loader2 className="w-4 h-4 animate-spin" />}
+            <button type="submit" disabled={loading}
+              className="w-full py-3 rounded-xl font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-60"
+              style={{ background: kidsUI ? "linear-gradient(135deg, #FF6B9D, #FEC260)" : "var(--gradient-hero)" }}>
+              {loading && <Loader2 className="w-4 h-4 animate-spin"/>}
               {mode === "login" ? "دخول" : "إنشاء الحساب"}
             </button>
           </form>
 
-          <div className="my-6 flex items-center gap-4 text-xs text-muted-foreground">
-            <div className="flex-1 h-px bg-border" /> أو <div className="flex-1 h-px bg-border" />
+          <div className="my-5 flex items-center gap-4 text-xs text-muted-foreground">
+            <div className="flex-1 h-px bg-border"/> أو <div className="flex-1 h-px bg-border"/>
           </div>
 
-          <button
-            onClick={onGoogle}
-            className="w-full py-3 rounded-xl border border-border bg-card hover:bg-muted transition-colors flex items-center justify-center gap-3 font-medium"
-          >
-            <GoogleIcon />
+          <button onClick={onGoogle} className="w-full py-3 rounded-xl border border-border bg-card hover:bg-muted flex items-center justify-center gap-3 font-medium">
             المتابعة عبر Google
           </button>
 
-          <p className="text-center text-sm text-muted-foreground mt-8">
-            بالمتابعة فأنت توافق على{" "}
-            <Link to="/auth" className="text-primary hover:underline">الشروط والأحكام</Link>.
-          </p>
+          <div className="mt-6 text-center text-sm space-y-2">
+            <Link to="/teacher-login" className="text-primary hover:underline">هل أنت معلّم؟ ادخل هنا</Link>
+            <div><Link to="/" className="text-muted-foreground hover:underline">← العودة للرئيسية</Link></div>
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-function TypeCard({ active, onClick, icon, title, desc }: {
-  active: boolean; onClick: () => void; icon: React.ReactNode; title: string; desc: string;
-}) {
+function TrackBtn({ active, onClick, icon, label }: { active: boolean; onClick: () => void; icon: string; label: string }) {
   return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`text-right p-4 rounded-xl border-2 transition-all bg-card ${
-        active ? "border-primary" : "border-border hover:border-primary/40"
-      }`}
-    >
-      <div className={`w-9 h-9 rounded-lg flex items-center justify-center mb-2 ${
-        active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-      }`}>
-        {icon}
-      </div>
-      <div className="text-sm font-bold text-foreground">{title}</div>
-      <div className="text-xs text-muted-foreground">{desc}</div>
+    <button type="button" onClick={onClick}
+      className={`p-3 rounded-xl border-2 flex items-center justify-center gap-2 font-semibold text-sm ${active ? "border-primary bg-primary/5" : "border-border"}`}>
+      <span className="text-2xl">{icon}</span> {label}
     </button>
   );
 }
-
+function SubType({ active, onClick, icon, label }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string }) {
+  return (
+    <button type="button" onClick={onClick}
+      className={`p-2.5 rounded-lg border flex items-center justify-center gap-2 text-sm ${active ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}>
+      {icon} {label}
+    </button>
+  );
+}
 function Field({ icon, label, type, placeholder, value, onChange, required }: {
   icon: React.ReactNode; label: string; type: string; placeholder: string;
   value: string; onChange: (v: string) => void; required?: boolean;
 }) {
   return (
     <label className="block">
-      <span className="text-sm font-medium text-foreground mb-1.5 block">{label}</span>
+      <span className="text-sm font-medium mb-1.5 block">{label}</span>
       <div className="relative">
         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground">{icon}</span>
-        <input
-          type={type}
-          placeholder={placeholder}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          required={required}
-          className="w-full pr-10 pl-4 py-3 rounded-xl border border-input bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent transition"
-        />
+        <input type={type} placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)} required={required}
+          className="w-full pr-10 pl-4 py-3 rounded-xl border border-input bg-card focus:outline-none focus:ring-2 focus:ring-ring"/>
       </div>
     </label>
-  );
-}
-
-function GoogleIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 48 48">
-      <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.9 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 6.5 29.5 4.5 24 4.5 13.2 4.5 4.5 13.2 4.5 24S13.2 43.5 24 43.5 43.5 34.8 43.5 24c0-1.2-.1-2.4-.3-3.5z"/>
-      <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.5 7 29.5 5 24 5 16.3 5 9.7 9 6.3 14.7z"/>
-      <path fill="#4CAF50" d="M24 43.5c5.4 0 10.3-2 13.9-5.3l-6.4-5.2c-2 1.5-4.6 2.5-7.5 2.5-5.3 0-9.7-3.1-11.3-7.5l-6.5 5C9.6 39.4 16.3 43.5 24 43.5z"/>
-      <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.4-2.3 4.4-4.3 5.9l6.4 5.2c-.4.4 7.1-5.2 7.1-15.1 0-1.2-.1-2.4-.3-3.5z"/>
-    </svg>
   );
 }

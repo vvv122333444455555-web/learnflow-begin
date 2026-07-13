@@ -9,7 +9,9 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TeacherLoginRouteImport } from './routes/teacher-login'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AdminLoginRouteImport } from './routes/admin-login'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedUpgradeRouteImport } from './routes/_authenticated/upgrade'
@@ -21,15 +23,35 @@ import { Route as AuthenticatedInvoicesRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedCoursesRouteImport } from './routes/_authenticated/courses'
 import { Route as AuthenticatedCheckoutRouteImport } from './routes/_authenticated/checkout'
+import { Route as AuthenticatedKidsIndexRouteImport } from './routes/_authenticated/kids.index'
+import { Route as AuthenticatedAdultsIndexRouteImport } from './routes/_authenticated/adults.index'
+import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedTeachWidgetsRouteImport } from './routes/_authenticated/teach.widgets'
+import { Route as AuthenticatedTeachOnboardingRouteImport } from './routes/_authenticated/teach.onboarding'
+import { Route as AuthenticatedTeachDashboardRouteImport } from './routes/_authenticated/teach.dashboard'
+import { Route as AuthenticatedTeachClassesRouteImport } from './routes/_authenticated/teach.classes'
+import { Route as AuthenticatedTeachBuilderRouteImport } from './routes/_authenticated/teach.builder'
 import { Route as AuthenticatedTeachAvailabilityRouteImport } from './routes/_authenticated/teach.availability'
+import { Route as AuthenticatedKidsExercisesRouteImport } from './routes/_authenticated/kids.exercises'
 import { Route as AuthenticatedCurriculumTunisianRouteImport } from './routes/_authenticated/curriculum.tunisian'
 import { Route as AuthenticatedCoursesIdRouteImport } from './routes/_authenticated/courses.$id'
+import { Route as AuthenticatedAdultsExercisesRouteImport } from './routes/_authenticated/adults.exercises'
+import { Route as AuthenticatedTeachExerciseIdRouteImport } from './routes/_authenticated/teach.exercise.$id'
 import { Route as AuthenticatedCoursesIdLessonsNRouteImport } from './routes/_authenticated/courses.$id.lessons.$n'
 
+const TeacherLoginRoute = TeacherLoginRouteImport.update({
+  id: '/teacher-login',
+  path: '/teacher-login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminLoginRoute = AdminLoginRouteImport.update({
+  id: '/admin-login',
+  path: '/admin-login',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -88,16 +110,62 @@ const AuthenticatedCheckoutRoute = AuthenticatedCheckoutRouteImport.update({
   path: '/checkout',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedKidsIndexRoute = AuthenticatedKidsIndexRouteImport.update({
+  id: '/kids/',
+  path: '/kids/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAdultsIndexRoute =
+  AuthenticatedAdultsIndexRouteImport.update({
+    id: '/adults/',
+    path: '/adults/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
+  id: '/admin/',
+  path: '/admin/',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedTeachWidgetsRoute =
   AuthenticatedTeachWidgetsRouteImport.update({
     id: '/teach/widgets',
     path: '/teach/widgets',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedTeachOnboardingRoute =
+  AuthenticatedTeachOnboardingRouteImport.update({
+    id: '/teach/onboarding',
+    path: '/teach/onboarding',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTeachDashboardRoute =
+  AuthenticatedTeachDashboardRouteImport.update({
+    id: '/teach/dashboard',
+    path: '/teach/dashboard',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTeachClassesRoute =
+  AuthenticatedTeachClassesRouteImport.update({
+    id: '/teach/classes',
+    path: '/teach/classes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTeachBuilderRoute =
+  AuthenticatedTeachBuilderRouteImport.update({
+    id: '/teach/builder',
+    path: '/teach/builder',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedTeachAvailabilityRoute =
   AuthenticatedTeachAvailabilityRouteImport.update({
     id: '/teach/availability',
     path: '/teach/availability',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedKidsExercisesRoute =
+  AuthenticatedKidsExercisesRouteImport.update({
+    id: '/kids/exercises',
+    path: '/kids/exercises',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedCurriculumTunisianRoute =
@@ -111,6 +179,18 @@ const AuthenticatedCoursesIdRoute = AuthenticatedCoursesIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AuthenticatedCoursesRoute,
 } as any)
+const AuthenticatedAdultsExercisesRoute =
+  AuthenticatedAdultsExercisesRouteImport.update({
+    id: '/adults/exercises',
+    path: '/adults/exercises',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedTeachExerciseIdRoute =
+  AuthenticatedTeachExerciseIdRouteImport.update({
+    id: '/teach/exercise/$id',
+    path: '/teach/exercise/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedCoursesIdLessonsNRoute =
   AuthenticatedCoursesIdLessonsNRouteImport.update({
     id: '/lessons/$n',
@@ -120,7 +200,9 @@ const AuthenticatedCoursesIdLessonsNRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRoute
+  '/teacher-login': typeof TeacherLoginRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/courses': typeof AuthenticatedCoursesRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -130,15 +212,27 @@ export interface FileRoutesByFullPath {
   '/my-courses': typeof AuthenticatedMyCoursesRoute
   '/placement-test': typeof AuthenticatedPlacementTestRoute
   '/upgrade': typeof AuthenticatedUpgradeRoute
+  '/adults/exercises': typeof AuthenticatedAdultsExercisesRoute
   '/courses/$id': typeof AuthenticatedCoursesIdRouteWithChildren
   '/curriculum/tunisian': typeof AuthenticatedCurriculumTunisianRoute
+  '/kids/exercises': typeof AuthenticatedKidsExercisesRoute
   '/teach/availability': typeof AuthenticatedTeachAvailabilityRoute
+  '/teach/builder': typeof AuthenticatedTeachBuilderRoute
+  '/teach/classes': typeof AuthenticatedTeachClassesRoute
+  '/teach/dashboard': typeof AuthenticatedTeachDashboardRoute
+  '/teach/onboarding': typeof AuthenticatedTeachOnboardingRoute
   '/teach/widgets': typeof AuthenticatedTeachWidgetsRoute
+  '/admin/': typeof AuthenticatedAdminIndexRoute
+  '/adults/': typeof AuthenticatedAdultsIndexRoute
+  '/kids/': typeof AuthenticatedKidsIndexRoute
+  '/teach/exercise/$id': typeof AuthenticatedTeachExerciseIdRoute
   '/courses/$id/lessons/$n': typeof AuthenticatedCoursesIdLessonsNRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRoute
+  '/teacher-login': typeof TeacherLoginRoute
   '/checkout': typeof AuthenticatedCheckoutRoute
   '/courses': typeof AuthenticatedCoursesRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
@@ -148,17 +242,29 @@ export interface FileRoutesByTo {
   '/my-courses': typeof AuthenticatedMyCoursesRoute
   '/placement-test': typeof AuthenticatedPlacementTestRoute
   '/upgrade': typeof AuthenticatedUpgradeRoute
+  '/adults/exercises': typeof AuthenticatedAdultsExercisesRoute
   '/courses/$id': typeof AuthenticatedCoursesIdRouteWithChildren
   '/curriculum/tunisian': typeof AuthenticatedCurriculumTunisianRoute
+  '/kids/exercises': typeof AuthenticatedKidsExercisesRoute
   '/teach/availability': typeof AuthenticatedTeachAvailabilityRoute
+  '/teach/builder': typeof AuthenticatedTeachBuilderRoute
+  '/teach/classes': typeof AuthenticatedTeachClassesRoute
+  '/teach/dashboard': typeof AuthenticatedTeachDashboardRoute
+  '/teach/onboarding': typeof AuthenticatedTeachOnboardingRoute
   '/teach/widgets': typeof AuthenticatedTeachWidgetsRoute
+  '/admin': typeof AuthenticatedAdminIndexRoute
+  '/adults': typeof AuthenticatedAdultsIndexRoute
+  '/kids': typeof AuthenticatedKidsIndexRoute
+  '/teach/exercise/$id': typeof AuthenticatedTeachExerciseIdRoute
   '/courses/$id/lessons/$n': typeof AuthenticatedCoursesIdLessonsNRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/admin-login': typeof AdminLoginRoute
   '/auth': typeof AuthRoute
+  '/teacher-login': typeof TeacherLoginRoute
   '/_authenticated/checkout': typeof AuthenticatedCheckoutRoute
   '/_authenticated/courses': typeof AuthenticatedCoursesRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
@@ -168,17 +274,29 @@ export interface FileRoutesById {
   '/_authenticated/my-courses': typeof AuthenticatedMyCoursesRoute
   '/_authenticated/placement-test': typeof AuthenticatedPlacementTestRoute
   '/_authenticated/upgrade': typeof AuthenticatedUpgradeRoute
+  '/_authenticated/adults/exercises': typeof AuthenticatedAdultsExercisesRoute
   '/_authenticated/courses/$id': typeof AuthenticatedCoursesIdRouteWithChildren
   '/_authenticated/curriculum/tunisian': typeof AuthenticatedCurriculumTunisianRoute
+  '/_authenticated/kids/exercises': typeof AuthenticatedKidsExercisesRoute
   '/_authenticated/teach/availability': typeof AuthenticatedTeachAvailabilityRoute
+  '/_authenticated/teach/builder': typeof AuthenticatedTeachBuilderRoute
+  '/_authenticated/teach/classes': typeof AuthenticatedTeachClassesRoute
+  '/_authenticated/teach/dashboard': typeof AuthenticatedTeachDashboardRoute
+  '/_authenticated/teach/onboarding': typeof AuthenticatedTeachOnboardingRoute
   '/_authenticated/teach/widgets': typeof AuthenticatedTeachWidgetsRoute
+  '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
+  '/_authenticated/adults/': typeof AuthenticatedAdultsIndexRoute
+  '/_authenticated/kids/': typeof AuthenticatedKidsIndexRoute
+  '/_authenticated/teach/exercise/$id': typeof AuthenticatedTeachExerciseIdRoute
   '/_authenticated/courses/$id/lessons/$n': typeof AuthenticatedCoursesIdLessonsNRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin-login'
     | '/auth'
+    | '/teacher-login'
     | '/checkout'
     | '/courses'
     | '/dashboard'
@@ -188,15 +306,27 @@ export interface FileRouteTypes {
     | '/my-courses'
     | '/placement-test'
     | '/upgrade'
+    | '/adults/exercises'
     | '/courses/$id'
     | '/curriculum/tunisian'
+    | '/kids/exercises'
     | '/teach/availability'
+    | '/teach/builder'
+    | '/teach/classes'
+    | '/teach/dashboard'
+    | '/teach/onboarding'
     | '/teach/widgets'
+    | '/admin/'
+    | '/adults/'
+    | '/kids/'
+    | '/teach/exercise/$id'
     | '/courses/$id/lessons/$n'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/admin-login'
     | '/auth'
+    | '/teacher-login'
     | '/checkout'
     | '/courses'
     | '/dashboard'
@@ -206,16 +336,28 @@ export interface FileRouteTypes {
     | '/my-courses'
     | '/placement-test'
     | '/upgrade'
+    | '/adults/exercises'
     | '/courses/$id'
     | '/curriculum/tunisian'
+    | '/kids/exercises'
     | '/teach/availability'
+    | '/teach/builder'
+    | '/teach/classes'
+    | '/teach/dashboard'
+    | '/teach/onboarding'
     | '/teach/widgets'
+    | '/admin'
+    | '/adults'
+    | '/kids'
+    | '/teach/exercise/$id'
     | '/courses/$id/lessons/$n'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/admin-login'
     | '/auth'
+    | '/teacher-login'
     | '/_authenticated/checkout'
     | '/_authenticated/courses'
     | '/_authenticated/dashboard'
@@ -225,26 +367,52 @@ export interface FileRouteTypes {
     | '/_authenticated/my-courses'
     | '/_authenticated/placement-test'
     | '/_authenticated/upgrade'
+    | '/_authenticated/adults/exercises'
     | '/_authenticated/courses/$id'
     | '/_authenticated/curriculum/tunisian'
+    | '/_authenticated/kids/exercises'
     | '/_authenticated/teach/availability'
+    | '/_authenticated/teach/builder'
+    | '/_authenticated/teach/classes'
+    | '/_authenticated/teach/dashboard'
+    | '/_authenticated/teach/onboarding'
     | '/_authenticated/teach/widgets'
+    | '/_authenticated/admin/'
+    | '/_authenticated/adults/'
+    | '/_authenticated/kids/'
+    | '/_authenticated/teach/exercise/$id'
     | '/_authenticated/courses/$id/lessons/$n'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AdminLoginRoute: typeof AdminLoginRoute
   AuthRoute: typeof AuthRoute
+  TeacherLoginRoute: typeof TeacherLoginRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/teacher-login': {
+      id: '/teacher-login'
+      path: '/teacher-login'
+      fullPath: '/teacher-login'
+      preLoaderRoute: typeof TeacherLoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin-login': {
+      id: '/admin-login'
+      path: '/admin-login'
+      fullPath: '/admin-login'
+      preLoaderRoute: typeof AdminLoginRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -324,6 +492,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCheckoutRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/kids/': {
+      id: '/_authenticated/kids/'
+      path: '/kids'
+      fullPath: '/kids/'
+      preLoaderRoute: typeof AuthenticatedKidsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/adults/': {
+      id: '/_authenticated/adults/'
+      path: '/adults'
+      fullPath: '/adults/'
+      preLoaderRoute: typeof AuthenticatedAdultsIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/admin/': {
+      id: '/_authenticated/admin/'
+      path: '/admin'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/teach/widgets': {
       id: '/_authenticated/teach/widgets'
       path: '/teach/widgets'
@@ -331,11 +520,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTeachWidgetsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/teach/onboarding': {
+      id: '/_authenticated/teach/onboarding'
+      path: '/teach/onboarding'
+      fullPath: '/teach/onboarding'
+      preLoaderRoute: typeof AuthenticatedTeachOnboardingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/teach/dashboard': {
+      id: '/_authenticated/teach/dashboard'
+      path: '/teach/dashboard'
+      fullPath: '/teach/dashboard'
+      preLoaderRoute: typeof AuthenticatedTeachDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/teach/classes': {
+      id: '/_authenticated/teach/classes'
+      path: '/teach/classes'
+      fullPath: '/teach/classes'
+      preLoaderRoute: typeof AuthenticatedTeachClassesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/teach/builder': {
+      id: '/_authenticated/teach/builder'
+      path: '/teach/builder'
+      fullPath: '/teach/builder'
+      preLoaderRoute: typeof AuthenticatedTeachBuilderRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/teach/availability': {
       id: '/_authenticated/teach/availability'
       path: '/teach/availability'
       fullPath: '/teach/availability'
       preLoaderRoute: typeof AuthenticatedTeachAvailabilityRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/kids/exercises': {
+      id: '/_authenticated/kids/exercises'
+      path: '/kids/exercises'
+      fullPath: '/kids/exercises'
+      preLoaderRoute: typeof AuthenticatedKidsExercisesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/curriculum/tunisian': {
@@ -351,6 +575,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/courses/$id'
       preLoaderRoute: typeof AuthenticatedCoursesIdRouteImport
       parentRoute: typeof AuthenticatedCoursesRoute
+    }
+    '/_authenticated/adults/exercises': {
+      id: '/_authenticated/adults/exercises'
+      path: '/adults/exercises'
+      fullPath: '/adults/exercises'
+      preLoaderRoute: typeof AuthenticatedAdultsExercisesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/teach/exercise/$id': {
+      id: '/_authenticated/teach/exercise/$id'
+      path: '/teach/exercise/$id'
+      fullPath: '/teach/exercise/$id'
+      preLoaderRoute: typeof AuthenticatedTeachExerciseIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/courses/$id/lessons/$n': {
       id: '/_authenticated/courses/$id/lessons/$n'
@@ -397,9 +635,19 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMyCoursesRoute: typeof AuthenticatedMyCoursesRoute
   AuthenticatedPlacementTestRoute: typeof AuthenticatedPlacementTestRoute
   AuthenticatedUpgradeRoute: typeof AuthenticatedUpgradeRoute
+  AuthenticatedAdultsExercisesRoute: typeof AuthenticatedAdultsExercisesRoute
   AuthenticatedCurriculumTunisianRoute: typeof AuthenticatedCurriculumTunisianRoute
+  AuthenticatedKidsExercisesRoute: typeof AuthenticatedKidsExercisesRoute
   AuthenticatedTeachAvailabilityRoute: typeof AuthenticatedTeachAvailabilityRoute
+  AuthenticatedTeachBuilderRoute: typeof AuthenticatedTeachBuilderRoute
+  AuthenticatedTeachClassesRoute: typeof AuthenticatedTeachClassesRoute
+  AuthenticatedTeachDashboardRoute: typeof AuthenticatedTeachDashboardRoute
+  AuthenticatedTeachOnboardingRoute: typeof AuthenticatedTeachOnboardingRoute
   AuthenticatedTeachWidgetsRoute: typeof AuthenticatedTeachWidgetsRoute
+  AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
+  AuthenticatedAdultsIndexRoute: typeof AuthenticatedAdultsIndexRoute
+  AuthenticatedKidsIndexRoute: typeof AuthenticatedKidsIndexRoute
+  AuthenticatedTeachExerciseIdRoute: typeof AuthenticatedTeachExerciseIdRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -412,9 +660,19 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMyCoursesRoute: AuthenticatedMyCoursesRoute,
   AuthenticatedPlacementTestRoute: AuthenticatedPlacementTestRoute,
   AuthenticatedUpgradeRoute: AuthenticatedUpgradeRoute,
+  AuthenticatedAdultsExercisesRoute: AuthenticatedAdultsExercisesRoute,
   AuthenticatedCurriculumTunisianRoute: AuthenticatedCurriculumTunisianRoute,
+  AuthenticatedKidsExercisesRoute: AuthenticatedKidsExercisesRoute,
   AuthenticatedTeachAvailabilityRoute: AuthenticatedTeachAvailabilityRoute,
+  AuthenticatedTeachBuilderRoute: AuthenticatedTeachBuilderRoute,
+  AuthenticatedTeachClassesRoute: AuthenticatedTeachClassesRoute,
+  AuthenticatedTeachDashboardRoute: AuthenticatedTeachDashboardRoute,
+  AuthenticatedTeachOnboardingRoute: AuthenticatedTeachOnboardingRoute,
   AuthenticatedTeachWidgetsRoute: AuthenticatedTeachWidgetsRoute,
+  AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
+  AuthenticatedAdultsIndexRoute: AuthenticatedAdultsIndexRoute,
+  AuthenticatedKidsIndexRoute: AuthenticatedKidsIndexRoute,
+  AuthenticatedTeachExerciseIdRoute: AuthenticatedTeachExerciseIdRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
@@ -423,18 +681,10 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AdminLoginRoute: AdminLoginRoute,
   AuthRoute: AuthRoute,
+  TeacherLoginRoute: TeacherLoginRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
