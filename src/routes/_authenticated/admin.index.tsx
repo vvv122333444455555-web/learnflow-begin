@@ -8,7 +8,7 @@ export const Route = createFileRoute("/_authenticated/admin/")({
   component: AdminDash,
 });
 
-type Code = { id: string; code: string; used_by: string | null; used_at: string | null; expires_at: string | null; active: boolean };
+type Code = { id: string; code: string; used_by: string | null; used_at: string | null; expires_at: string | null; active: boolean; teacher_name?: string | null };
 
 function AdminDash() {
   const navigate = useNavigate();
@@ -17,8 +17,14 @@ function AdminDash() {
   const [stats, setStats] = useState({ users: 0, teachers: 0, exercises: 0 });
 
   const load = async () => {
-    const { data } = await supabase.from("teacher_codes").select("*").order("created_at", { ascending: false });
-    setCodes(data ?? []);
+    const { data: rows } = await supabase.from("teacher_codes").select("*").order("created_at", { ascending: false });
+    const userIds = Array.from(new Set((rows ?? []).map(r => r.used_by).filter(Boolean))) as string[];
+    let names: Record<string,string> = {};
+    if (userIds.length) {
+      const { data: profs } = await supabase.from("profiles").select("id, full_name, email").in("id", userIds);
+      names = Object.fromEntries((profs ?? []).map(p => [p.id, p.full_name || p.email || p.id.slice(0,8)]));
+    }
+    setCodes((rows ?? []).map(r => ({ ...r, teacher_name: r.used_by ? names[r.used_by] : null })));
     const [{ count: u }, { count: t }, { count: e }] = await Promise.all([
       supabase.from("profiles").select("*", { count: "exact", head: true }),
       supabase.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "teacher"),
@@ -26,6 +32,7 @@ function AdminDash() {
     ]);
     setStats({ users: u ?? 0, teachers: t ?? 0, exercises: e ?? 0 });
   };
+
 
   useEffect(() => { (async () => {
     const { data: u } = await supabase.auth.getUser();
@@ -73,10 +80,19 @@ function AdminDash() {
               <div key={c.id} className="flex items-center justify-between p-3 rounded-xl border">
                 <div>
                   <code className="font-mono font-bold">{c.code}</code>
-                  <div className="text-xs text-muted-foreground">{c.used_at ? `مستخدم في ${new Date(c.used_at).toLocaleDateString("ar")}` : "غير مستخدم"}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {c.used_at
+                      ? `مستخدم بواسطة ${c.teacher_name ?? "—"} في ${new Date(c.used_at).toLocaleDateString("ar")}`
+                      : "غير مستخدم"}
+                  </div>
                 </div>
-                <button onClick={() => { navigator.clipboard.writeText(c.code); toast.success("نُسخ"); }}
-                  className="p-2 rounded-lg hover:bg-muted"><Copy className="w-4 h-4"/></button>
+                <div className="flex items-center gap-2">
+                  <span className={`text-xs px-2 py-1 rounded-full ${c.used_by ? "bg-muted text-muted-foreground" : "bg-green-100 text-green-700"}`}>
+                    {c.used_by ? "مستخدم" : "متاح"}
+                  </span>
+                  <button onClick={() => { navigator.clipboard.writeText(c.code); toast.success("نُسخ"); }}
+                    className="p-2 rounded-lg hover:bg-muted"><Copy className="w-4 h-4"/></button>
+                </div>
               </div>
             ))}
           </div>
