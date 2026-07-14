@@ -8,7 +8,7 @@ export const Route = createFileRoute("/_authenticated/admin/")({
   component: AdminDash,
 });
 
-type Code = { id: string; code: string; used_by: string | null; used_at: string | null; expires_at: string | null; active: boolean };
+type Code = { id: string; code: string; used_by: string | null; used_at: string | null; expires_at: string | null; active: boolean; teacher_name?: string | null };
 
 function AdminDash() {
   const navigate = useNavigate();
@@ -17,8 +17,14 @@ function AdminDash() {
   const [stats, setStats] = useState({ users: 0, teachers: 0, exercises: 0 });
 
   const load = async () => {
-    const { data } = await supabase.from("teacher_codes").select("*").order("created_at", { ascending: false });
-    setCodes(data ?? []);
+    const { data: rows } = await supabase.from("teacher_codes").select("*").order("created_at", { ascending: false });
+    const userIds = Array.from(new Set((rows ?? []).map(r => r.used_by).filter(Boolean))) as string[];
+    let names: Record<string,string> = {};
+    if (userIds.length) {
+      const { data: profs } = await supabase.from("profiles").select("id, full_name, email").in("id", userIds);
+      names = Object.fromEntries((profs ?? []).map(p => [p.id, p.full_name || p.email || p.id.slice(0,8)]));
+    }
+    setCodes((rows ?? []).map(r => ({ ...r, teacher_name: r.used_by ? names[r.used_by] : null })));
     const [{ count: u }, { count: t }, { count: e }] = await Promise.all([
       supabase.from("profiles").select("*", { count: "exact", head: true }),
       supabase.from("user_roles").select("*", { count: "exact", head: true }).eq("role", "teacher"),
@@ -26,6 +32,7 @@ function AdminDash() {
     ]);
     setStats({ users: u ?? 0, teachers: t ?? 0, exercises: e ?? 0 });
   };
+
 
   useEffect(() => { (async () => {
     const { data: u } = await supabase.auth.getUser();
