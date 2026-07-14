@@ -163,11 +163,11 @@ function Editor({ type, content, setContent }: { type: Type; content: any; setCo
             {qs.length > 1 && <button onClick={() => rmQ(i)} className="text-red-500"><Trash2 className="w-4 h-4"/></button>}
           </div>
 
-          {type === "mcq" && <McqQ q={q} onChange={(p) => updQ(i, p)}/>}
-          {type === "true_false" && <TfQ q={q} onChange={(p) => updQ(i, p)}/>}
-          {type === "fill_blank" && <FillQ q={q} onChange={(p) => updQ(i, p)}/>}
-          {type === "matching" && <MatchQ q={q} onChange={(p) => updQ(i, p)}/>}
-          {type === "ordering" && <OrderQ q={q} onChange={(p) => updQ(i, p)}/>}
+          {type === "mcq" && <McqQ q={q} onChange={(p: any) => updQ(i, p)}/>}
+          {type === "true_false" && <TfQ q={q} onChange={(p: any) => updQ(i, p)}/>}
+          {type === "fill_blank" && <FillQ q={q} onChange={(p: any) => updQ(i, p)}/>}
+          {type === "matching" && <MatchQ q={q} onChange={(p: any) => updQ(i, p)}/>}
+          {type === "ordering" && <OrderQ q={q} onChange={(p: any) => updQ(i, p)}/>}
         </div>
       ))}
       <button onClick={addQ} className="w-full py-3 rounded-xl border-2 border-dashed border-primary text-primary font-semibold inline-flex items-center justify-center gap-2">
