@@ -662,6 +662,8 @@ export type Database = {
           premium_until: string
         }[]
       }
+      admin_exists: { Args: never; Returns: boolean }
+      bootstrap_first_admin: { Args: never; Returns: undefined }
       complete_enrollment: {
         Args: { _enrollment_id: string }
         Returns: {
