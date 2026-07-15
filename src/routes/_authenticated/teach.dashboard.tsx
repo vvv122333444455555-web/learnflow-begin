@@ -2,6 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Users, Wand2, ClipboardList, LogOut, Plus } from "lucide-react";
+import { NotificationsBell } from "@/components/notifications-bell";
 
 export const Route = createFileRoute("/_authenticated/teach/dashboard")({
   component: TeacherDashboard,
@@ -43,7 +44,10 @@ function TeacherDashboard() {
             <div className="text-xs text-muted-foreground">بوابة المعلّم</div>
             <div className="font-bold">{profile?.full_name} · {profile?.specialty_language}</div>
           </div>
-          <button onClick={signOut} className="p-2 rounded-lg hover:bg-muted"><LogOut className="w-4 h-4"/></button>
+          <div className="flex items-center gap-1">
+            <NotificationsBell />
+            <button onClick={signOut} className="p-2 rounded-lg hover:bg-muted"><LogOut className="w-4 h-4"/></button>
+          </div>
         </div>
       </header>
 
