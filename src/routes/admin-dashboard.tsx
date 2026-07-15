@@ -154,10 +154,10 @@ function AdminInner({ onLock }: { onLock: () => void }) {
 
   const generate = async () => {
     setLoading(true);
-    const expires = expiresDays > 0 ? new Date(Date.now() + expiresDays * 24 * 60 * 60 * 1000).toISOString() : null;
+    const expires = expiresDays > 0 ? new Date(Date.now() + expiresDays * 24 * 60 * 60 * 1000).toISOString() : undefined;
     const { data, error } = await supabase.rpc("generate_teacher_code", {
       _expires_at: expires, _max_uses: maxUses, _prefix: "TCH",
-    });
+    } as any);
     setLoading(false);
     if (error) return toast.error(error.message);
     toast.success(`تم إنشاء: ${data}`);
