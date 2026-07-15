@@ -209,6 +209,8 @@ export type Database = {
           score: number
           student_id: string
           submitted_at: string
+          teacher_feedback: string | null
+          time_taken_seconds: number | null
         }
         Insert: {
           answers?: Json
@@ -219,6 +221,8 @@ export type Database = {
           score?: number
           student_id: string
           submitted_at?: string
+          teacher_feedback?: string | null
+          time_taken_seconds?: number | null
         }
         Update: {
           answers?: Json
@@ -229,6 +233,8 @@ export type Database = {
           score?: number
           student_id?: string
           submitted_at?: string
+          teacher_feedback?: string | null
+          time_taken_seconds?: number | null
         }
         Relationships: [
           {
@@ -247,11 +253,18 @@ export type Database = {
           id: string
           max_attempts: number
           published: boolean
+          target_grade: string | null
+          target_language: string | null
+          target_level: string | null
+          target_module: string | null
+          target_term: string | null
+          target_track: string | null
           teacher_id: string
           time_limit_sec: number | null
           title: string
           type: string
           updated_at: string
+          visibility: string
         }
         Insert: {
           content?: Json
@@ -259,11 +272,18 @@ export type Database = {
           id?: string
           max_attempts?: number
           published?: boolean
+          target_grade?: string | null
+          target_language?: string | null
+          target_level?: string | null
+          target_module?: string | null
+          target_term?: string | null
+          target_track?: string | null
           teacher_id: string
           time_limit_sec?: number | null
           title: string
           type: string
           updated_at?: string
+          visibility?: string
         }
         Update: {
           content?: Json
@@ -271,11 +291,18 @@ export type Database = {
           id?: string
           max_attempts?: number
           published?: boolean
+          target_grade?: string | null
+          target_language?: string | null
+          target_level?: string | null
+          target_module?: string | null
+          target_term?: string | null
+          target_track?: string | null
           teacher_id?: string
           time_limit_sec?: number | null
           title?: string
           type?: string
           updated_at?: string
+          visibility?: string
         }
         Relationships: []
       }
@@ -402,6 +429,42 @@ export type Database = {
           read_at?: string | null
           recipient_id?: string
           sender_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          link: string | null
+          payload: Json | null
+          read_at: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          link?: string | null
+          payload?: Json | null
+          read_at?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          link?: string | null
+          payload?: Json | null
+          read_at?: string | null
+          title?: string
+          type?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -550,6 +613,9 @@ export type Database = {
           created_by: string | null
           expires_at: string | null
           id: string
+          max_uses: number
+          revoked_at: string | null
+          use_count: number
           used_at: string | null
           used_by: string | null
         }
@@ -560,6 +626,9 @@ export type Database = {
           created_by?: string | null
           expires_at?: string | null
           id?: string
+          max_uses?: number
+          revoked_at?: string | null
+          use_count?: number
           used_at?: string | null
           used_by?: string | null
         }
@@ -570,6 +639,9 @@ export type Database = {
           created_by?: string | null
           expires_at?: string | null
           id?: string
+          max_uses?: number
+          revoked_at?: string | null
+          use_count?: number
           used_at?: string | null
           used_by?: string | null
         }
@@ -692,7 +764,12 @@ export type Database = {
         }
         Returns: undefined
       }
-      generate_teacher_code: { Args: { _expires_at?: string }; Returns: string }
+      generate_teacher_code:
+        | { Args: { _expires_at?: string }; Returns: string }
+        | {
+            Args: { _expires_at?: string; _max_uses?: number; _prefix?: string }
+            Returns: string
+          }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -709,13 +786,26 @@ export type Database = {
         Returns: boolean
       }
       redeem_teacher_code: { Args: { _code: string }; Returns: undefined }
-      submit_exercise: {
-        Args: { _answers: Json; _exercise_id: string }
-        Returns: {
-          max_score: number
-          score: number
-        }[]
-      }
+      revoke_teacher_code: { Args: { _code: string }; Returns: undefined }
+      submit_exercise:
+        | {
+            Args: { _answers: Json; _exercise_id: string }
+            Returns: {
+              max_score: number
+              score: number
+            }[]
+          }
+        | {
+            Args: {
+              _answers: Json
+              _exercise_id: string
+              _time_taken_seconds?: number
+            }
+            Returns: {
+              max_score: number
+              score: number
+            }[]
+          }
     }
     Enums: {
       app_role: "admin" | "teacher" | "student"
