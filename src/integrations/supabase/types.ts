@@ -700,6 +700,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_exercise_assigned_to_user: {
+        Args: { _exercise_id: string; _user_id: string }
+        Returns: boolean
+      }
+      is_exercise_owner: {
+        Args: { _exercise_id: string; _user_id: string }
+        Returns: boolean
+      }
       redeem_teacher_code: { Args: { _code: string }; Returns: undefined }
       submit_exercise: {
         Args: { _answers: Json; _exercise_id: string }
