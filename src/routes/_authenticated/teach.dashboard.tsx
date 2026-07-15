@@ -44,7 +44,10 @@ function TeacherDashboard() {
             <div className="text-xs text-muted-foreground">بوابة المعلّم</div>
             <div className="font-bold">{profile?.full_name} · {profile?.specialty_language}</div>
           </div>
-          <button onClick={signOut} className="p-2 rounded-lg hover:bg-muted"><LogOut className="w-4 h-4"/></button>
+          <div className="flex items-center gap-1">
+            <NotificationsBell />
+            <button onClick={signOut} className="p-2 rounded-lg hover:bg-muted"><LogOut className="w-4 h-4"/></button>
+          </div>
         </div>
       </header>
 
