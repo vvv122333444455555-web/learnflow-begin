@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Users, Wand2, ClipboardList, LogOut, Plus } from "lucide-react";
+import { Users, Wand2, ClipboardList, LogOut, Plus, BookOpen } from "lucide-react";
 import { NotificationsBell } from "@/components/notifications-bell";
 import { useRoleGuard } from "@/hooks/use-role-guard";
 
@@ -60,16 +60,21 @@ function TeacherDashboard() {
           <Card icon={<ClipboardList className="w-5 h-5"/>} label="التسليمات" value={stats.submissions}/>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-3">
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-3">
           <Link to="/teach/builder" className="p-5 rounded-2xl bg-card border hover:border-primary transition">
             <Wand2 className="w-6 h-6 text-primary mb-2"/>
             <div className="font-bold">منشئ التمارين</div>
-            <div className="text-sm text-muted-foreground">أنشئ اختبارات وتمارين تفاعلية</div>
+            <div className="text-sm text-muted-foreground">أنشئ اختبارات تفاعلية</div>
+          </Link>
+          <Link to="/teach/library" className="p-5 rounded-2xl bg-card border hover:border-primary transition">
+            <BookOpen className="w-6 h-6 text-primary mb-2"/>
+            <div className="font-bold">مكتبة النماذج</div>
+            <div className="text-sm text-muted-foreground">تمارين جاهزة قابلة للاستنساخ</div>
           </Link>
           <Link to="/teach/classes" className="p-5 rounded-2xl bg-card border hover:border-primary transition">
             <Users className="w-6 h-6 text-primary mb-2"/>
             <div className="font-bold">فصولي وطلابي</div>
-            <div className="text-sm text-muted-foreground">إدارة الفصول وإضافة الطلاب</div>
+            <div className="text-sm text-muted-foreground">إدارة الفصول والطلاب</div>
           </Link>
           <Link to="/teach/availability" className="p-5 rounded-2xl bg-card border hover:border-primary transition">
             <ClipboardList className="w-6 h-6 text-primary mb-2"/>
