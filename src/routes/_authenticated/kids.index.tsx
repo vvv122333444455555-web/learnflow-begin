@@ -7,12 +7,15 @@ export const Route = createFileRoute("/_authenticated/kids/")({
   component: KidsDashboard,
 });
 
+import { useRoleGuard } from "@/hooks/use-role-guard";
+
 function KidsDashboard() {
+  const ready = useRoleGuard(["student"]);
   const [profile, setProfile] = useState<{ full_name: string; points: number; badges: string[]; track: string | null } | null>(null);
   const [count, setCount] = useState({ assigned: 0, done: 0 });
   const navigate = useNavigate();
 
-  useEffect(() => {
+  useEffect(() => { if (!ready) return;
     (async () => {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return;
@@ -25,7 +28,7 @@ function KidsDashboard() {
       ]);
       setCount({ assigned: a ?? 0, done: d ?? 0 });
     })();
-  }, [navigate]);
+  }, [navigate, ready]);
 
   const signOut = async () => { await supabase.auth.signOut(); navigate({ to: "/" }); };
 

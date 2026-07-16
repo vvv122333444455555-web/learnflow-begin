@@ -199,6 +199,39 @@ export type Database = {
           },
         ]
       }
+      exercise_collections: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          language: string
+          level: string
+          title: string
+          topic: string | null
+          track: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          language: string
+          level: string
+          title: string
+          topic?: string | null
+          track: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          language?: string
+          level?: string
+          title?: string
+          topic?: string | null
+          track?: string
+        }
+        Relationships: []
+      }
       exercise_submissions: {
         Row: {
           answers: Json
@@ -246,6 +279,44 @@ export type Database = {
           },
         ]
       }
+      exercise_templates: {
+        Row: {
+          collection_id: string
+          content: Json
+          created_at: string
+          id: string
+          title: string
+          type: string
+          video_url: string | null
+        }
+        Insert: {
+          collection_id: string
+          content: Json
+          created_at?: string
+          id?: string
+          title: string
+          type: string
+          video_url?: string | null
+        }
+        Update: {
+          collection_id?: string
+          content?: Json
+          created_at?: string
+          id?: string
+          title?: string
+          type?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercise_templates_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_collections"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       exercises: {
         Row: {
           content: Json
@@ -264,6 +335,7 @@ export type Database = {
           title: string
           type: string
           updated_at: string
+          video_url: string | null
           visibility: string
         }
         Insert: {
@@ -283,6 +355,7 @@ export type Database = {
           title: string
           type: string
           updated_at?: string
+          video_url?: string | null
           visibility?: string
         }
         Update: {
@@ -302,6 +375,7 @@ export type Database = {
           title?: string
           type?: string
           updated_at?: string
+          video_url?: string | null
           visibility?: string
         }
         Relationships: []
@@ -736,6 +810,10 @@ export type Database = {
       }
       admin_exists: { Args: never; Returns: boolean }
       bootstrap_first_admin: { Args: never; Returns: undefined }
+      clone_template_to_exercise: {
+        Args: { _template_id: string }
+        Returns: string
+      }
       complete_enrollment: {
         Args: { _enrollment_id: string }
         Returns: {

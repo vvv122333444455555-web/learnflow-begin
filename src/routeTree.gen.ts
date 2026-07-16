@@ -29,6 +29,7 @@ import { Route as AuthenticatedAdultsIndexRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedTeachWidgetsRouteImport } from './routes/_authenticated/teach.widgets'
 import { Route as AuthenticatedTeachOnboardingRouteImport } from './routes/_authenticated/teach.onboarding'
+import { Route as AuthenticatedTeachLibraryRouteImport } from './routes/_authenticated/teach.library'
 import { Route as AuthenticatedTeachDashboardRouteImport } from './routes/_authenticated/teach.dashboard'
 import { Route as AuthenticatedTeachClassesRouteImport } from './routes/_authenticated/teach.classes'
 import { Route as AuthenticatedTeachBuilderRouteImport } from './routes/_authenticated/teach.builder'
@@ -144,6 +145,12 @@ const AuthenticatedTeachOnboardingRoute =
     path: '/teach/onboarding',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedTeachLibraryRoute =
+  AuthenticatedTeachLibraryRouteImport.update({
+    id: '/teach/library',
+    path: '/teach/library',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedTeachDashboardRoute =
   AuthenticatedTeachDashboardRouteImport.update({
     id: '/teach/dashboard',
@@ -227,6 +234,7 @@ export interface FileRoutesByFullPath {
   '/teach/builder': typeof AuthenticatedTeachBuilderRoute
   '/teach/classes': typeof AuthenticatedTeachClassesRoute
   '/teach/dashboard': typeof AuthenticatedTeachDashboardRoute
+  '/teach/library': typeof AuthenticatedTeachLibraryRoute
   '/teach/onboarding': typeof AuthenticatedTeachOnboardingRoute
   '/teach/widgets': typeof AuthenticatedTeachWidgetsRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -258,6 +266,7 @@ export interface FileRoutesByTo {
   '/teach/builder': typeof AuthenticatedTeachBuilderRoute
   '/teach/classes': typeof AuthenticatedTeachClassesRoute
   '/teach/dashboard': typeof AuthenticatedTeachDashboardRoute
+  '/teach/library': typeof AuthenticatedTeachLibraryRoute
   '/teach/onboarding': typeof AuthenticatedTeachOnboardingRoute
   '/teach/widgets': typeof AuthenticatedTeachWidgetsRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -291,6 +300,7 @@ export interface FileRoutesById {
   '/_authenticated/teach/builder': typeof AuthenticatedTeachBuilderRoute
   '/_authenticated/teach/classes': typeof AuthenticatedTeachClassesRoute
   '/_authenticated/teach/dashboard': typeof AuthenticatedTeachDashboardRoute
+  '/_authenticated/teach/library': typeof AuthenticatedTeachLibraryRoute
   '/_authenticated/teach/onboarding': typeof AuthenticatedTeachOnboardingRoute
   '/_authenticated/teach/widgets': typeof AuthenticatedTeachWidgetsRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -324,6 +334,7 @@ export interface FileRouteTypes {
     | '/teach/builder'
     | '/teach/classes'
     | '/teach/dashboard'
+    | '/teach/library'
     | '/teach/onboarding'
     | '/teach/widgets'
     | '/admin/'
@@ -355,6 +366,7 @@ export interface FileRouteTypes {
     | '/teach/builder'
     | '/teach/classes'
     | '/teach/dashboard'
+    | '/teach/library'
     | '/teach/onboarding'
     | '/teach/widgets'
     | '/admin'
@@ -387,6 +399,7 @@ export interface FileRouteTypes {
     | '/_authenticated/teach/builder'
     | '/_authenticated/teach/classes'
     | '/_authenticated/teach/dashboard'
+    | '/_authenticated/teach/library'
     | '/_authenticated/teach/onboarding'
     | '/_authenticated/teach/widgets'
     | '/_authenticated/admin/'
@@ -547,6 +560,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedTeachOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/teach/library': {
+      id: '/_authenticated/teach/library'
+      path: '/teach/library'
+      fullPath: '/teach/library'
+      preLoaderRoute: typeof AuthenticatedTeachLibraryRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/teach/dashboard': {
       id: '/_authenticated/teach/dashboard'
       path: '/teach/dashboard'
@@ -662,6 +682,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedTeachBuilderRoute: typeof AuthenticatedTeachBuilderRoute
   AuthenticatedTeachClassesRoute: typeof AuthenticatedTeachClassesRoute
   AuthenticatedTeachDashboardRoute: typeof AuthenticatedTeachDashboardRoute
+  AuthenticatedTeachLibraryRoute: typeof AuthenticatedTeachLibraryRoute
   AuthenticatedTeachOnboardingRoute: typeof AuthenticatedTeachOnboardingRoute
   AuthenticatedTeachWidgetsRoute: typeof AuthenticatedTeachWidgetsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
@@ -687,6 +708,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedTeachBuilderRoute: AuthenticatedTeachBuilderRoute,
   AuthenticatedTeachClassesRoute: AuthenticatedTeachClassesRoute,
   AuthenticatedTeachDashboardRoute: AuthenticatedTeachDashboardRoute,
+  AuthenticatedTeachLibraryRoute: AuthenticatedTeachLibraryRoute,
   AuthenticatedTeachOnboardingRoute: AuthenticatedTeachOnboardingRoute,
   AuthenticatedTeachWidgetsRoute: AuthenticatedTeachWidgetsRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,

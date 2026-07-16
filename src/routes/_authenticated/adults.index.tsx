@@ -15,7 +15,10 @@ export const Route = createFileRoute("/_authenticated/adults/")({
   component: AdultsDashboard,
 });
 
+import { useRoleGuard } from "@/hooks/use-role-guard";
+
 function AdultsDashboard() {
+  const ready = useRoleGuard(["student"]);
   const [profile, setProfile] = useState<{ full_name: string; cefr_level: string | null; learning_goal: string | null; track: string | null } | null>(null);
   const [count, setCount] = useState({ assigned: 0, done: 0 });
   const navigate = useNavigate();
@@ -33,7 +36,7 @@ function AdultsDashboard() {
     setCount({ assigned: a ?? 0, done: d ?? 0 });
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { if (ready) load(); }, [ready]);
 
   const setGoal = async (goal: string) => {
     const { data: u } = await supabase.auth.getUser();

@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Plus, Trash2, Loader2, Send, Eye, Globe, Lock, CloudUpload } from "lucide-react";
 import { ExercisePlayer } from "@/components/exercise-player";
+import { useRoleGuard } from "@/hooks/use-role-guard";
 
 export const Route = createFileRoute("/_authenticated/teach/builder")({
   component: Builder,
@@ -30,6 +31,7 @@ const GRADES = ["السنة 3", "السنة 4", "السنة 5", "السنة 6", 
 const TERMS = ["الثلاثي 1", "الثلاثي 2", "الثلاثي 3"];
 
 function Builder() {
+  useRoleGuard(["teacher", "admin"]);
   const navigate = useNavigate();
   const [type, setType] = useState<Type>("mcq");
   const [title, setTitle] = useState("");
