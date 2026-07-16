@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
+import { EmbeddedVideo } from "@/components/embedded-video";
 
-export type Exercise = { id: string; title: string; type: string; content: any };
+export type Exercise = { id: string; title: string; type: string; content: any; video_url?: string | null };
 
 export function ExercisePlayer({ ex, onSubmit, palette = "adult" }: {
   ex: Exercise;
@@ -106,6 +107,7 @@ export function ExercisePlayer({ ex, onSubmit, palette = "adult" }: {
 
   return (
     <div className="space-y-4">
+      {ex.video_url && <EmbeddedVideo url={ex.video_url} />}
       {render()}
       <button onClick={() => onSubmit(answers)}
         className="w-full py-3 rounded-xl text-white font-bold text-lg" style={{ background: primary }}>
