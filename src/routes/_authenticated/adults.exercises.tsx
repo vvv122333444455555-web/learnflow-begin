@@ -3,20 +3,22 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ExercisePlayer, type Exercise } from "@/components/exercise-player";
+import { useRoleGuard } from "@/hooks/use-role-guard";
 
 export const Route = createFileRoute("/_authenticated/adults/exercises")({
   component: AdultsExercises,
 });
 
 function AdultsExercises() {
+  const ready = useRoleGuard(["student"]);
   const [list, setList] = useState<Exercise[]>([]);
   const [active, setActive] = useState<Exercise | null>(null);
   const [result, setResult] = useState<{ score: number; max_score: number } | null>(null);
 
-  useEffect(() => { (async () => {
-    const { data } = await supabase.from("exercises").select("id, title, type, content").eq("published", true).order("created_at", { ascending: false });
+  useEffect(() => { if (!ready) return; (async () => {
+    const { data } = await supabase.from("exercises").select("id, title, type, content, video_url").eq("published", true).order("created_at", { ascending: false });
     setList((data ?? []) as Exercise[]);
-  })(); }, []);
+  })(); }, [ready]);
 
   const submit = async (answers: Record<string, any>) => {
     if (!active) return;
