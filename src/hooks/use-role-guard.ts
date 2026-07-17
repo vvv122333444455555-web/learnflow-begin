@@ -16,6 +16,7 @@ export type StudentTrack = "kids" | "adults";
 export function useRoleGuard(allow: Role[], options?: { track?: StudentTrack }) {
   const navigate = useNavigate();
   const [ready, setReady] = useState(false);
+  const allowKey = allow.join("|");
 
   useEffect(() => {
     (async () => {
@@ -68,7 +69,7 @@ export function useRoleGuard(allow: Role[], options?: { track?: StudentTrack }) 
       }
       setReady(true);
     })();
-  }, [allow, navigate, options?.track]);
+  }, [allowKey, navigate, options?.track]);
 
   return ready;
 }

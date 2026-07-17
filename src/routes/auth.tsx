@@ -52,10 +52,19 @@ function AuthPage() {
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data }) => {
       if (!data.user) return;
+      if (trackParam) {
+        try {
+          const updatedProfile = await applySelectedStudentTrack();
+          goToTrack(updatedProfile?.track ?? trackParam);
+          return;
+        } catch {
+          // Teacher/admin accounts cannot be converted here; fall back to their saved workspace.
+        }
+      }
       const { data: p } = await supabase.from("profiles").select("track").eq("id", data.user.id).maybeSingle();
       goToTrack(p?.track);
     });
-  }, [navigate]);
+  }, [navigate, trackParam]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
