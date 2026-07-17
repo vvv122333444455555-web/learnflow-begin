@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export type Role = "admin" | "teacher" | "student";
+export type StudentTrack = "kids" | "adults";
 
 /**
  * Guards a route by user role. If the user's role doesn't match `allow`,
@@ -12,9 +13,10 @@ export type Role = "admin" | "teacher" | "student";
  * - Teachers trying to open a student page → /teach/dashboard
  * - Students trying to open a teacher page → /adults or /kids
  */
-export function useRoleGuard(allow: Role[]) {
+export function useRoleGuard(allow: Role[], options?: { track?: StudentTrack }) {
   const navigate = useNavigate();
   const [ready, setReady] = useState(false);
+  const allowKey = allow.join("|");
 
   useEffect(() => {
     (async () => {
@@ -51,9 +53,23 @@ export function useRoleGuard(allow: Role[]) {
         }
         return;
       }
+
+      if (roleForCheck === "student" && options?.track) {
+        const { data: p } = await supabase
+          .from("profiles")
+          .select("track")
+          .eq("id", u.user.id)
+          .maybeSingle();
+        const userTrack = p?.track === "kids" ? "kids" : "adults";
+        if (userTrack !== options.track) {
+          toast.info("تم توجيهك إلى فضائك الصحيح");
+          navigate({ to: userTrack === "kids" ? "/kids" : "/adults" });
+          return;
+        }
+      }
       setReady(true);
     })();
-  }, [allow, navigate]);
+  }, [allowKey, navigate, options?.track]);
 
   return ready;
 }

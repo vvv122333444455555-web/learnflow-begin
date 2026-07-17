@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_authenticated/kids/")({
 import { useRoleGuard } from "@/hooks/use-role-guard";
 
 function KidsDashboard() {
-  const ready = useRoleGuard(["student"]);
+  const ready = useRoleGuard(["student"], { track: "kids" });
   const [profile, setProfile] = useState<{ full_name: string; points: number; badges: string[]; track: string | null } | null>(null);
   const [count, setCount] = useState({ assigned: 0, done: 0 });
   const navigate = useNavigate();
@@ -20,7 +20,6 @@ function KidsDashboard() {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return;
       const { data: p } = await supabase.from("profiles").select("full_name, points, badges, track").eq("id", u.user.id).maybeSingle();
-      if (p && p.track !== "kids") { navigate({ to: "/adults" }); return; }
       setProfile(p as any);
       const [{ count: a }, { count: d }] = await Promise.all([
         supabase.from("exercise_assignments").select("*", { count: "exact", head: true }),
