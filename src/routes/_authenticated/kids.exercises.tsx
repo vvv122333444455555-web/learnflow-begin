@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_authenticated/kids/exercises")({
 });
 
 function KidsExercises() {
-  const ready = useRoleGuard(["student"]);
+  const ready = useRoleGuard(["student"], { track: "kids" });
   const [list, setList] = useState<Exercise[]>([]);
   const [active, setActive] = useState<Exercise | null>(null);
   const [result, setResult] = useState<{ score: number; max_score: number } | null>(null);

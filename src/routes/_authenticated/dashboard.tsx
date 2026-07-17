@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
@@ -25,12 +25,14 @@ type Profile = {
   account_type: "adult" | "parent";
   kid_name: string | null;
   kid_age: number | null;
+  track: string | null;
 };
 
 function Dashboard() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [recommended, setRecommended] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     (async () => {
@@ -38,9 +40,17 @@ function Dashboard() {
       if (!u.user) return;
       const { data: p } = await supabase
         .from("profiles")
-        .select("full_name, level, account_type, kid_name, kid_age")
+        .select("full_name, level, account_type, kid_name, kid_age, track")
         .eq("id", u.user.id)
         .maybeSingle();
+      if (p?.track === "kids") {
+        navigate({ to: "/kids" });
+        return;
+      }
+      if (p?.track === "adults") {
+        navigate({ to: "/adults" });
+        return;
+      }
       setProfile(p as Profile);
 
       const level = p?.level ?? "A1";
@@ -53,7 +63,7 @@ function Dashboard() {
       setRecommended((courses as Course[]) ?? []);
       setLoading(false);
     })();
-  }, []);
+  }, [navigate]);
 
   if (profile?.account_type === "parent") {
     return <KidDashboard profile={profile} recommended={recommended} loading={loading} />;
