@@ -865,6 +865,38 @@ export type Database = {
       }
       redeem_teacher_code: { Args: { _code: string }; Returns: undefined }
       revoke_teacher_code: { Args: { _code: string }; Returns: undefined }
+      set_my_student_track: {
+        Args: { _account_type?: string; _track: string }
+        Returns: {
+          account_type: string
+          avatar_url: string | null
+          badges: Json
+          bio: string | null
+          cefr_level: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          is_premium: boolean
+          kid_age: number | null
+          kid_name: string | null
+          learning_goal: string | null
+          level: string | null
+          parent_id: string | null
+          points: number
+          premium_until: string | null
+          specialty_language: string | null
+          teacher_profile_completed: boolean
+          track: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "profiles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       submit_exercise:
         | {
             Args: { _answers: Json; _exercise_id: string }
