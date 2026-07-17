@@ -5,6 +5,7 @@ import { Mail, Lock, User, Languages, Sparkles, Loader2, Baby, Users } from "luc
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
+import type { Database } from "@/integrations/supabase/types";
 
 const search = z.object({
   track: z.enum(["kids", "adults"]).optional(),
@@ -32,11 +33,26 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
+  const goToTrack = (profileTrack?: string | null) => {
+    navigate({ to: profileTrack === "kids" ? "/kids" : "/adults" });
+  };
+
+  const applySelectedStudentTrack = async () => {
+    const accountType = track === "kids" ? (isParent ? "parent" : "child") : "adult";
+    const { data, error } = await supabase.rpc("set_my_student_track" as never, {
+      _track: track,
+      _account_type: accountType,
+    } as never);
+
+    if (error) throw error;
+    return data as Database["public"]["Tables"]["profiles"]["Row"] | null;
+  };
+
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data }) => {
       if (!data.user) return;
       const { data: p } = await supabase.from("profiles").select("track").eq("id", data.user.id).maybeSingle();
-      navigate({ to: p?.track === "kids" ? "/kids" : "/adults" });
+      goToTrack(p?.track);
     });
   }, [navigate]);
 
@@ -55,13 +71,15 @@ function AuthPage() {
         });
         if (error) throw error;
         toast.success("تم إنشاء الحساب!");
-        if (data.session) navigate({ to: track === "kids" ? "/kids" : "/adults" });
+        if (data.session) {
+          const updatedProfile = await applySelectedStudentTrack();
+          goToTrack(updatedProfile?.track ?? track);
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        const { data: u } = await supabase.auth.getUser();
-        const { data: p } = await supabase.from("profiles").select("track").eq("id", u.user!.id).maybeSingle();
-        navigate({ to: p?.track === "kids" ? "/kids" : "/adults" });
+        const updatedProfile = await applySelectedStudentTrack();
+        goToTrack(updatedProfile?.track ?? track);
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : "خطأ";
@@ -124,14 +142,17 @@ function AuthPage() {
             ))}
           </div>
 
-          {mode === "signup" && (
+          <div className="mb-4">
+            <div className="text-sm font-medium mb-2">
+              {mode === "login" ? "أريد الدخول إلى" : "اختر المسار"}
+            </div>
             <div className="grid grid-cols-2 gap-3 mb-4">
               <TrackBtn active={track === "adults"} onClick={() => { setTrack("adults"); setIsParent(false); }}
                 icon="💼" label="كبار" />
               <TrackBtn active={track === "kids"} onClick={() => setTrack("kids")}
                 icon="🎨" label="أطفال" />
             </div>
-          )}
+          </div>
 
           {mode === "signup" && track === "kids" && (
             <div className="grid grid-cols-2 gap-3 mb-4">
