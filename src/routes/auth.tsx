@@ -26,6 +26,7 @@ function AuthPage() {
   const { track: trackParam } = Route.useSearch();
   const [mode, setMode] = useState<"login" | "signup">(trackParam ? "signup" : "login");
   const [track, setTrack] = useState<"kids" | "adults">(trackParam ?? "adults");
+  const [trackExplicit, setTrackExplicit] = useState(!!trackParam);
   const [isParent, setIsParent] = useState(false);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -78,8 +79,14 @@ function AuthPage() {
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        const updatedProfile = await applySelectedStudentTrack();
-        goToTrack(updatedProfile?.track ?? track);
+        if (trackExplicit) {
+          const updatedProfile = await applySelectedStudentTrack();
+          goToTrack(updatedProfile?.track ?? track);
+        } else {
+          const { data: u } = await supabase.auth.getUser();
+          const { data: p } = await supabase.from("profiles").select("track").eq("id", u.user!.id).maybeSingle();
+          goToTrack(p?.track);
+        }
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : "خطأ";
@@ -147,9 +154,9 @@ function AuthPage() {
               {mode === "login" ? "أريد الدخول إلى" : "اختر المسار"}
             </div>
             <div className="grid grid-cols-2 gap-3 mb-4">
-              <TrackBtn active={track === "adults"} onClick={() => { setTrack("adults"); setIsParent(false); }}
+              <TrackBtn active={track === "adults"} onClick={() => { setTrack("adults"); setIsParent(false); setTrackExplicit(true); }}
                 icon="💼" label="كبار" />
-              <TrackBtn active={track === "kids"} onClick={() => setTrack("kids")}
+              <TrackBtn active={track === "kids"} onClick={() => { setTrack("kids"); setTrackExplicit(true); }}
                 icon="🎨" label="أطفال" />
             </div>
           </div>
