@@ -45,17 +45,15 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "signup") {
+        const account_type = track === "kids" ? (isParent ? "parent" : "child") : "adult";
         const { data, error } = await supabase.auth.signUp({
           email, password,
-          options: { emailRedirectTo: `${window.location.origin}/`, data: { full_name: fullName } },
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+            data: { full_name: fullName, track, account_type },
+          },
         });
         if (error) throw error;
-        if (data.user) {
-          await supabase.from("profiles").update({
-            track,
-            account_type: track === "kids" && isParent ? "parent" : "adult",
-          }).eq("id", data.user.id);
-        }
         toast.success("تم إنشاء الحساب!");
         if (data.session) navigate({ to: track === "kids" ? "/kids" : "/adults" });
       } else {
