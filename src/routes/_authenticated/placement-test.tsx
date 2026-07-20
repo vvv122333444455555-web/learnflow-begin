@@ -98,8 +98,7 @@ function PlacementTestPage() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
   const [finished, setFinished] = useState(false);
-  const [saving, setSaving] = useState(false);
-
+const [recommendedCourses, setRecommendedCourses] = useState<any[]>([]);
   const questions = lang ? QUESTIONS[lang] : [];
   const langInfo = LANGS.find((l) => l.code === lang);
 
@@ -137,13 +136,13 @@ function PlacementTestPage() {
     if (step < questions.length - 1) setStep(step + 1);
     else setFinished(true);
   };
-
-  const reset = () => {
+const [saving, setSaving] = useState(false);
+  function reset() {
     setLang(null);
     setStep(0);
     setAnswers([]);
     setFinished(false);
-  };
+  }
 
   const saveLevel = async () => {
     if (!result) return;
@@ -153,14 +152,30 @@ function PlacementTestPage() {
       navigate({ to: "/auth" });
       return;
     }
-    const { error } = await supabase.from("profiles").update({ level: result.level }).eq("id", u.user.id);
-    setSaving(false);
+
+const { error } = await supabase
+  .from("profiles")
+  .update({
+    level: result.level,
+    cefr_level: result.level,
+    points: result.correct * 10,
+  })
+  .eq("id", u.user.id);
+      setSaving(false);
     if (error) {
       toast.error("تعذّر الحفظ");
       return;
     }
+    const { data: courses } = await supabase
+  .from("courses")
+  .select("*")
+  .eq("level", result.level)
+  .eq("is_active", true);
+
+if (courses) {
+  setRecommendedCourses(courses);
+}
     toast.success(`تم حفظ مستواك: ${result.level}`);
-    navigate({ to: "/courses" });
   };
 
   // Language selection
@@ -328,3 +343,7 @@ function PlacementTestPage() {
     </div>
   );
 }
+function setSaving(arg0: boolean) {
+  throw new Error("Function not implemented.");
+}
+
