@@ -93,7 +93,7 @@ Deno.serve(async (req) => {
         body: JSON.stringify({
           contents,
           systemInstruction: { parts: [{ text: systemPrompt }] },
-          generationConfig: { maxOutputTokens: 400 },
+          generationConfig: { maxOutputTokens: 800, thinkingConfig: { thinkingBudget: 0 } },
         }),
       },
     );
