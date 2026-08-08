@@ -98,7 +98,8 @@ function PlacementTestPage() {
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
   const [finished, setFinished] = useState(false);
-const [recommendedCourses, setRecommendedCourses] = useState<any[]>([]);
+  const [saving, setSaving] = useState(false);
+  const [recommendedCourses, setRecommendedCourses] = useState<any[]>([]);
   const questions = lang ? QUESTIONS[lang] : [];
   const langInfo = LANGS.find((l) => l.code === lang);
 
@@ -116,13 +117,6 @@ const [recommendedCourses, setRecommendedCourses] = useState<any[]>([]);
     let highest = "A1";
     for (const lv of order) if (correctLevels.includes(lv)) highest = lv;
     if (correct === 0) highest = "A1";
-    // English uses the simple LearnFlow scoring band (5 questions):
-    // 1-2 → A1, 3-4 → A2, 5 → B1
-    if (lang === "en") {
-      if (correct <= 2) highest = "A1";
-      else if (correct <= 4) highest = "A2";
-      else highest = "B1";
-    }
     return { correct, total: questions.length, level: highest };
   }, [finished, answers, questions, lang]);
 
@@ -136,13 +130,14 @@ const [recommendedCourses, setRecommendedCourses] = useState<any[]>([]);
     if (step < questions.length - 1) setStep(step + 1);
     else setFinished(true);
   };
-const [saving, setSaving] = useState(false);
   function reset() {
     setLang(null);
     setStep(0);
     setAnswers([]);
     setFinished(false);
   }
+
+  const [savedOk, setSavedOk] = useState(false);
 
   const saveLevel = async () => {
     if (!result) return;
@@ -153,28 +148,26 @@ const [saving, setSaving] = useState(false);
       return;
     }
 
-const { error } = await supabase
-  .from("profiles")
-  .update({
-    level: result.level,
-    cefr_level: result.level,
-    points: result.correct * 10,
-  })
-  .eq("id", u.user.id);
-      setSaving(false);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ level: result.level, cefr_level: result.level, points: result.correct * 10 })
+      .eq("id", u.user.id);
+
     if (error) {
+      setSaving(false);
       toast.error("تعذّر الحفظ");
       return;
     }
-    const { data: courses } = await supabase
-  .from("courses")
-  .select("*")
-  .eq("level", result.level)
-  .eq("is_active", true);
 
-if (courses) {
-  setRecommendedCourses(courses);
-}
+    const { data: courses } = await supabase
+      .from("courses")
+      .select("*")
+      .eq("level", result.level)
+      .eq("is_active", true);
+
+    setRecommendedCourses(courses ?? []);
+    setSavedOk(true);
+    setSaving(false);
     toast.success(`تم حفظ مستواك: ${result.level}`);
   };
 
@@ -259,16 +252,37 @@ if (courses) {
               <div className="flex flex-col sm:flex-row gap-3">
                 <button
                   onClick={saveLevel}
-                  disabled={saving}
+                  disabled={saving || savedOk}
                   className="flex-1 px-6 py-3 rounded-xl font-semibold text-primary-foreground inline-flex items-center justify-center gap-2 disabled:opacity-50"
                   style={{ background: "var(--gradient-hero)", boxShadow: "var(--shadow-elegant)" }}
                 >
-                  <Check className="w-4 h-4" /> احفظ مستواي واستعرض الدورات
+                  <Check className="w-4 h-4" /> {savedOk ? "تم الحفظ ✓" : "احفظ مستواي واستعرض الدورات"}
                 </button>
                 <button onClick={reset} className="px-6 py-3 rounded-xl font-semibold border-2 border-border hover:bg-muted inline-flex items-center justify-center gap-2">
                   <RotateCcw className="w-4 h-4" /> إعادة الاختبار
                 </button>
               </div>
+
+              {savedOk && (
+                <div className="mt-6">
+                  <h3 className="font-bold mb-3">الدورات الموصى بها لمستواك</h3>
+                  {recommendedCourses.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">لا توجد دورات متاحة لهذا المستوى حاليًا.</p>
+                  ) : (
+                    <div className="space-y-2">
+                      {recommendedCourses.map((c) => (
+                        <div key={c.id} className="p-4 rounded-xl border border-border flex items-center justify-between gap-3">
+                          <div>
+                            <div className="font-semibold">{c.title}</div>
+                            <div className="text-xs text-muted-foreground">{c.description}</div>
+                          </div>
+                          <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary shrink-0">{c.level}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               <Link to="/dashboard" className="block text-center text-sm text-muted-foreground hover:text-foreground mt-4">العودة إلى الرئيسية</Link>
             </div>
@@ -342,8 +356,5 @@ if (courses) {
       </div>
     </div>
   );
-}
-function setSaving(arg0: boolean) {
-  throw new Error("Function not implemented.");
 }
 

@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ExercisePlayer, type Exercise } from "@/components/exercise-player";
 import { useRoleGuard } from "@/hooks/use-role-guard";
+import { Mascot } from "@/components/mascot";
 
 export const Route = createFileRoute("/_authenticated/adults/exercises")({
   component: AdultsExercises,
@@ -16,7 +17,7 @@ function AdultsExercises() {
   const [result, setResult] = useState<{ score: number; max_score: number } | null>(null);
 
   useEffect(() => { if (!ready) return; (async () => {
-    const { data } = await supabase.from("exercises").select("id, title, type, content, video_url").eq("published", true).order("created_at", { ascending: false });
+    const { data } = await supabase.from("exercises").select("id, title, type, content, video_url, target_language").eq("published", true).order("created_at", { ascending: false });
     setList((data ?? []) as Exercise[]);
   })(); }, [ready]);
 
@@ -55,6 +56,7 @@ function AdultsExercises() {
 
   return (
     <div className="min-h-screen bg-background p-6" dir="rtl">
+      <Mascot context="adults_exercises" palette="adult" />
       <div className="max-w-3xl mx-auto space-y-3">
         <Link to="/adults" className="text-sm text-muted-foreground">← لوحة التحكم</Link>
         <h1 className="text-2xl font-bold">التمارين المُسندة</h1>

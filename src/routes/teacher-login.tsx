@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { GraduationCap, Mail, Lock, KeyRound, Loader2 } from "lucide-react";
+import { GraduationCap, Mail, Lock, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/teacher-login")({
@@ -9,13 +9,16 @@ export const Route = createFileRoute("/teacher-login")({
   component: TeacherLogin,
 });
 
+async function goToTeacherHome(navigate: ReturnType<typeof useNavigate>, userId: string) {
+  const { data: p } = await supabase.from("profiles").select("teacher_profile_completed").eq("id", userId).maybeSingle();
+  navigate({ to: p?.teacher_profile_completed ? "/teach/dashboard" : "/teach/onboarding" });
+}
+
 function TeacherLogin() {
-  const [step, setStep] = useState<"auth" | "code">("auth");
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -23,13 +26,7 @@ function TeacherLogin() {
     (async () => {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) return;
-      const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", u.user.id);
-      if (roles?.some((r) => r.role === "teacher")) {
-        const { data: p } = await supabase.from("profiles").select("teacher_profile_completed").eq("id", u.user.id).maybeSingle();
-        navigate({ to: p?.teacher_profile_completed ? "/teach/dashboard" : "/teach/onboarding" });
-      } else {
-        setStep("code");
-      }
+      await goToTeacherHome(navigate, u.user.id);
     })();
   }, [navigate]);
 
@@ -38,29 +35,39 @@ function TeacherLogin() {
     setLoading(true);
     try {
       if (mode === "signup") {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email, password,
           options: { emailRedirectTo: `${window.location.origin}/teacher-login`, data: { full_name: fullName } },
         });
         if (error) throw error;
-        toast.success("تم إنشاء الحساب — الآن أدخل رمز المعلّم");
+
+        if (!data.session) {
+          // Email confirmation is required before we have a session to call the RPC with.
+          toast.success("تم إنشاء الحساب — تحقق من بريدك الإلكتروني لتأكيده، ثم سجّل الدخول");
+          setMode("login");
+          return;
+        }
+        const { error: roleErr } = await supabase.rpc("self_register_as_teacher");
+        if (roleErr) throw roleErr;
+        toast.success("مرحبًا بك كمعلّم! أكمل ملفك الشخصي");
+        navigate({ to: "/teach/onboarding" });
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
+
+        const { data: u } = await supabase.auth.getUser();
+        const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", u.user!.id);
+        if (!roles?.some((r) => r.role === "teacher")) {
+          // First login after confirming email: grant the teacher role now.
+          const { error: roleErr } = await supabase.rpc("self_register_as_teacher");
+          if (roleErr) throw roleErr;
+          navigate({ to: "/teach/onboarding" });
+          return;
+        }
+        await goToTeacherHome(navigate, u.user!.id);
       }
-      setStep("code");
     } catch (e) { toast.error(e instanceof Error ? e.message : "خطأ"); }
     finally { setLoading(false); }
-  };
-
-  const onRedeem = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    const { error } = await supabase.rpc("redeem_teacher_code", { _code: code.trim() });
-    setLoading(false);
-    if (error) { toast.error(error.message); return; }
-    toast.success("تم التحقق من الرمز — أكمل ملفك");
-    navigate({ to: "/teach/onboarding" });
   };
 
   return (
@@ -70,44 +77,29 @@ function TeacherLogin() {
           <div className="w-11 h-11 rounded-xl flex items-center justify-center text-white" style={{ background: "var(--gradient-hero)" }}><GraduationCap className="w-6 h-6"/></div>
           <div>
             <h1 className="text-xl font-bold">بوابة المعلّم</h1>
-            <p className="text-sm text-muted-foreground">{step === "auth" ? "سجّل دخولك أولاً" : "أدخل رمز المعلّم الخاص بك"}</p>
+            <p className="text-sm text-muted-foreground">سجّل دخولك أو أنشئ حسابًا جديدًا</p>
           </div>
         </div>
 
-        {step === "auth" ? (
-          <>
-            <div className="grid grid-cols-2 p-1 bg-muted rounded-xl mb-4">
-              {(["login","signup"] as const).map((m) => (
-                <button key={m} onClick={() => setMode(m)}
-                  className={`py-2 text-sm font-medium rounded-lg ${mode === m ? "bg-background shadow-sm" : "text-muted-foreground"}`}>
-                  {m === "login" ? "تسجيل الدخول" : "حساب جديد"}
-                </button>
-              ))}
-            </div>
-            <form onSubmit={onAuth} className="space-y-3">
-              {mode === "signup" && <TextInput icon={<GraduationCap className="w-4 h-4"/>} placeholder="الاسم الكامل" value={fullName} onChange={setFullName} required/>}
-              <TextInput icon={<Mail className="w-4 h-4"/>} placeholder="البريد الإلكتروني" type="email" value={email} onChange={setEmail} required/>
-              <TextInput icon={<Lock className="w-4 h-4"/>} placeholder="كلمة المرور" type="password" value={password} onChange={setPassword} required/>
-              <button type="submit" disabled={loading}
-                className="w-full py-3 rounded-xl font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-60"
-                style={{ background: "var(--gradient-hero)" }}>
-                {loading && <Loader2 className="w-4 h-4 animate-spin"/>}
-                {mode === "login" ? "دخول" : "تسجيل"}
-              </button>
-            </form>
-          </>
-        ) : (
-          <form onSubmit={onRedeem} className="space-y-3">
-            <TextInput icon={<KeyRound className="w-4 h-4"/>} placeholder="TCH-XXXXXXXX" value={code} onChange={setCode} required/>
-            <button type="submit" disabled={loading}
-              className="w-full py-3 rounded-xl font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-60"
-              style={{ background: "var(--gradient-hero)" }}>
-              {loading && <Loader2 className="w-4 h-4 animate-spin"/>}
-              التحقق من الرمز
+        <div className="grid grid-cols-2 p-1 bg-muted rounded-xl mb-4">
+          {(["login", "signup"] as const).map((m) => (
+            <button key={m} onClick={() => setMode(m)}
+              className={`py-2 text-sm font-medium rounded-lg ${mode === m ? "bg-background shadow-sm" : "text-muted-foreground"}`}>
+              {m === "login" ? "تسجيل الدخول" : "حساب جديد"}
             </button>
-            <p className="text-xs text-muted-foreground text-center">لم يصلك رمز؟ اطلبه من إدارة المنصّة.</p>
-          </form>
-        )}
+          ))}
+        </div>
+        <form onSubmit={onAuth} className="space-y-3">
+          {mode === "signup" && <TextInput icon={<GraduationCap className="w-4 h-4"/>} placeholder="الاسم الكامل" value={fullName} onChange={setFullName} required/>}
+          <TextInput icon={<Mail className="w-4 h-4"/>} placeholder="البريد الإلكتروني" type="email" value={email} onChange={setEmail} required/>
+          <TextInput icon={<Lock className="w-4 h-4"/>} placeholder="كلمة المرور" type="password" value={password} onChange={setPassword} required/>
+          <button type="submit" disabled={loading}
+            className="w-full py-3 rounded-xl font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-60"
+            style={{ background: "var(--gradient-hero)" }}>
+            {loading && <Loader2 className="w-4 h-4 animate-spin"/>}
+            {mode === "login" ? "دخول" : "تسجيل"}
+          </button>
+        </form>
 
         <div className="mt-6 text-center text-sm">
           <Link to="/" className="text-muted-foreground hover:underline">← العودة للرئيسية</Link>

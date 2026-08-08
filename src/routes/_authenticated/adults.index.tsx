@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Briefcase, BookOpen, Target, TrendingUp, LogOut, GraduationCap } from "lucide-react";
+import { Briefcase, BookOpen, Target, TrendingUp, LogOut, GraduationCap, MessageCircle } from "lucide-react";
+import { Mascot } from "@/components/mascot";
 
 const CEFR = ["A1", "A2", "B1", "B2", "C1", "C2"] as const;
 const GOALS = [
@@ -21,6 +22,7 @@ function AdultsDashboard() {
   const ready = useRoleGuard(["student"], { track: "adults" });
   const [profile, setProfile] = useState<{ full_name: string; cefr_level: string | null; learning_goal: string | null; track: string | null } | null>(null);
   const [count, setCount] = useState({ assigned: 0, done: 0 });
+  const [recommendedCourses, setRecommendedCourses] = useState<any[]>([]);
   const navigate = useNavigate();
 
   const load = async () => {
@@ -33,6 +35,13 @@ function AdultsDashboard() {
       supabase.from("exercise_submissions").select("*", { count: "exact", head: true }).eq("student_id", u.user.id),
     ]);
     setCount({ assigned: a ?? 0, done: d ?? 0 });
+
+    if (p?.cefr_level) {
+      const { data: courses } = await supabase.from("courses").select("*").eq("level", p.cefr_level).eq("is_active", true);
+      setRecommendedCourses(courses ?? []);
+    } else {
+      setRecommendedCourses([]);
+    }
   };
 
   useEffect(() => { if (ready) load(); }, [ready]);
@@ -53,6 +62,7 @@ function AdultsDashboard() {
 
   return (
     <div className="min-h-screen bg-background" dir="rtl">
+      <Mascot context="adults_welcome" palette="adult" />
       <header className="border-b border-border bg-card">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -93,9 +103,31 @@ function AdultsDashboard() {
           <div className="h-2 bg-muted rounded-full overflow-hidden">
             <div className="h-full bg-primary" style={{ width: `${((levelIdx + 1) / 6) * 100}%` }}/>
           </div>
+
+          {profile?.cefr_level && (
+            <div className="mt-5 pt-5 border-t border-border">
+              <h4 className="text-sm font-bold mb-3 text-muted-foreground">الدورات الموصى بها لمستواك ({profile.cefr_level})</h4>
+              {recommendedCourses.length === 0 ? (
+                <p className="text-sm text-muted-foreground">لا توجد دورات متاحة لهذا المستوى حاليًا.</p>
+              ) : (
+                <div className="space-y-2">
+                  {recommendedCourses.map((c) => (
+                    <Link key={c.id} to="/courses/$id" params={{ id: c.id }}
+                      className="p-3 rounded-xl border border-border flex items-center justify-between gap-3 hover:border-primary transition block">
+                      <div>
+                        <div className="font-semibold text-sm">{c.title}</div>
+                        <div className="text-xs text-muted-foreground">{c.description}</div>
+                      </div>
+                      <span className="text-xs px-2 py-1 rounded-full bg-primary/10 text-primary shrink-0">{c.level}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </section>
 
-        <div className="grid md:grid-cols-2 gap-4">
+        <div className="grid md:grid-cols-3 gap-4">
           <Link to="/adults/exercises" className="p-6 rounded-2xl bg-card border border-border hover:border-primary transition">
             <BookOpen className="w-8 h-8 text-primary mb-3"/>
             <div className="font-bold text-lg mb-1">التمارين المُسندة</div>
@@ -105,6 +137,11 @@ function AdultsDashboard() {
             <GraduationCap className="w-8 h-8 text-primary mb-3"/>
             <div className="font-bold text-lg mb-1">اختبار المستوى</div>
             <div className="text-sm text-muted-foreground">حدّد مستواك الحقيقي بدقة</div>
+          </Link>
+          <Link to="/adults/chat" className="p-6 rounded-2xl bg-card border border-border hover:border-primary transition">
+            <MessageCircle className="w-8 h-8 text-primary mb-3"/>
+            <div className="font-bold text-lg mb-1">محادثة مع المساعد الذكي</div>
+            <div className="text-sm text-muted-foreground">مارس اللغة عبر محادثة حية</div>
           </Link>
         </div>
       </main>

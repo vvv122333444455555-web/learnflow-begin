@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Lock, Loader2, CheckCircle2, Download, CreditCard, Smartphone, ShieldCheck } from "lucide-react";
 import { generateInvoicePDF } from "@/lib/invoice-pdf";
 
-const searchSchema = z.object({ plan: z.enum(["monthly", "yearly"]).default("monthly") });
+const searchSchema = z.object({ plan: z.enum(["basic", "monthly", "yearly"]).default("basic") });
 
 export const Route = createFileRoute("/_authenticated/checkout")({
   head: () => ({ meta: [{ title: "إتمام الدفع | منصة اللغات" }] }),
@@ -15,16 +15,17 @@ export const Route = createFileRoute("/_authenticated/checkout")({
   component: CheckoutPage,
 });
 
-const PLAN_DETAILS: Record<"monthly" | "yearly", { name: string; price: number; period: string; days: number }> = {
-  monthly: { name: "اشتراك شهري", price: 49, period: "شهر", days: 30 },
-  yearly: { name: "اشتراك سنوي", price: 399, period: "سنة", days: 365 },
+const PLAN_DETAILS: Record<"basic" | "monthly" | "yearly", { name: string; price: number; period: string; days: number; tier: "basic" | "premium" }> = {
+  basic: { name: "اشتراك أساسي (تمارين)", price: 9, period: "شهر", days: 30, tier: "basic" },
+  monthly: { name: "اشتراك Premium شهري", price: 49, period: "شهر", days: 30, tier: "premium" },
+  yearly: { name: "اشتراك Premium سنوي", price: 399, period: "سنة", days: 365, tier: "premium" },
 };
 
 type Profile = { full_name: string | null; email: string | null };
 type Method = "flouci" | "card" | "gpg";
 
 function CheckoutPage() {
-  const search = Route.useSearch() as { plan: "monthly" | "yearly" };
+  const search = Route.useSearch() as { plan: "basic" | "monthly" | "yearly" };
   const plan = search.plan;
   const navigate = useNavigate();
   const detail = PLAN_DETAILS[plan];
@@ -81,15 +82,23 @@ function CheckoutPage() {
     await new Promise((r) => setTimeout(r, 1600));
     const providerRef = `${method.toUpperCase()}-${Date.now().toString(36).toUpperCase()}-${Math.random().toString(36).slice(2, 7).toUpperCase()}`;
 
-    // Server-side controlled activation: creates invoice + flips premium atomically
-    const { data: rpc, error: rpcErr } = await supabase.rpc("activate_premium", {
-      _plan: detail.name,
-      _amount: detail.price,
-      _currency: "TND",
-      _provider: method,
-      _provider_ref: providerRef,
-      _days: detail.days,
-    });
+    // Server-side controlled activation: creates invoice + flips the right tier atomically
+    const { data: rpc, error: rpcErr } = detail.tier === "basic"
+      ? await supabase.rpc("activate_basic_subscription", {
+          _amount: detail.price,
+          _currency: "TND",
+          _provider: method,
+          _provider_ref: providerRef,
+          _days: detail.days,
+        })
+      : await supabase.rpc("activate_premium", {
+          _plan: detail.name,
+          _amount: detail.price,
+          _currency: "TND",
+          _provider: method,
+          _provider_ref: providerRef,
+          _days: detail.days,
+        });
 
     setProcessing(false);
     if (rpcErr || !rpc || (Array.isArray(rpc) && rpc.length === 0)) {
@@ -99,7 +108,7 @@ function CheckoutPage() {
     const row = Array.isArray(rpc) ? rpc[0] : rpc;
     const invoiceNo = String(row.invoice_id).slice(0, 8).toUpperCase();
     setDone({ invoiceNo, ref: providerRef });
-    toast.success("تم الدفع بنجاح! أصبحت عضوًا مميّزًا 🎉");
+    toast.success(detail.tier === "basic" ? "تم الدفع بنجاح! فُتحت لك كل التمارين 🎉" : "تم الدفع بنجاح! أصبحت عضوًا مميّزًا 🎉");
     setTimeout(() => downloadInvoice(invoiceNo, providerRef), 400);
   };
 
@@ -112,7 +121,11 @@ function CheckoutPage() {
               <CheckCircle2 className="w-10 h-10" />
             </div>
             <h1 className="text-3xl font-bold mb-2">تم الدفع بنجاح</h1>
-            <p className="text-muted-foreground mb-6">أهلاً بك في عضوية Premium. أصبح بإمكانك الوصول لكل المحتوى وحجز الجلسات الحيّة.</p>
+            <p className="text-muted-foreground mb-6">
+              {detail.tier === "basic"
+                ? "أهلاً بك! أصبح بإمكانك الوصول لكامل مكتبة التمارين على المنصة."
+                : "أهلاً بك في عضوية Premium. أصبح بإمكانك الوصول لكل المحتوى وحجز الجلسات الحيّة."}
+            </p>
             <div className="rounded-2xl bg-muted p-4 mb-6 text-sm space-y-1 text-right">
               <div className="flex justify-between"><span className="text-muted-foreground">رقم الفاتورة</span><span className="font-mono font-semibold">#{done.invoiceNo}</span></div>
               <div className="flex justify-between"><span className="text-muted-foreground">المرجع</span><span className="font-mono text-xs">{done.ref}</span></div>

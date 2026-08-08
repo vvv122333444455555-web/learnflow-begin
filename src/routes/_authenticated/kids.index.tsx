@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Star, Trophy, Rocket, BookOpen, Sparkles, LogOut } from "lucide-react";
+import { Star, Trophy, Rocket, BookOpen, Sparkles, LogOut, MessageCircle } from "lucide-react";
+import { Mascot } from "@/components/mascot";
 
 export const Route = createFileRoute("/_authenticated/kids/")({
   component: KidsDashboard,
@@ -33,6 +34,7 @@ function KidsDashboard() {
 
   return (
     <div className="min-h-screen" dir="rtl" style={{ background: "linear-gradient(180deg, #FFF1F5 0%, #FFF8E7 100%)" }}>
+      <Mascot context="kids_welcome" palette="kid" />
       <header className="px-6 py-4 flex items-center justify-between max-w-5xl mx-auto">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white text-2xl" style={{ background: "linear-gradient(135deg, #FF6B9D, #FEC260)" }}>🎨</div>
@@ -71,6 +73,16 @@ function KidsDashboard() {
               <div>
                 <div className="font-bold text-lg">بنك المناهج 🇹🇳</div>
                 <div className="text-sm text-muted-foreground">دروس تفاعلية جاهزة</div>
+              </div>
+            </div>
+          </Link>
+
+          <Link to="/kids/chat" className="p-6 rounded-3xl bg-white shadow-lg hover:-translate-y-1 transition-transform">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-white text-xl" style={{ background: "#7EE8FA" }}><MessageCircle className="w-6 h-6"/></div>
+              <div>
+                <div className="font-bold text-lg">صديقي للمحادثة</div>
+                <div className="text-sm text-muted-foreground">دردش وتمرّن على اللغة 🤖</div>
               </div>
             </div>
           </Link>

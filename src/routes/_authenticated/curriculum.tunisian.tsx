@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_authenticated/curriculum/tunisian")({
 });
 
 function TunisianCurriculumPage() {
-  const [gradeId, setGradeId] = useState<"grade5" | "grade6">("grade5");
+  const [gradeId, setGradeId] = useState<typeof TUNISIAN_CURRICULUM[number]["id"]>("grade5");
   const grade = useMemo(() => TUNISIAN_CURRICULUM.find((g) => g.id === gradeId)!, [gradeId]);
   const [activeModuleId, setActiveModuleId] = useState<string>(grade.modules[0].id);
   const activeModule = grade.modules.find((m) => m.id === activeModuleId) ?? grade.modules[0];
@@ -25,7 +25,7 @@ function TunisianCurriculumPage() {
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold mb-2">🇹🇳 بنك المناهج التونسية</h1>
           <p className="text-white/90 max-w-2xl">
-            تمارين إنجليزية تفاعلية مصمَّمة خصيصاً لتلاميذ السنتين الخامسة والسادسة ابتدائي في تونس — مطابقات، اختيارات، ملء فراغات وقراءة.
+            تمارين إنجليزية تفاعلية مطابقة للمنهج التونسي — من السنة الخامسة ابتدائي إلى الباكالوريا: مطابقات، اختيارات، ملء فراغات وقراءة.
           </p>
         </div>
 

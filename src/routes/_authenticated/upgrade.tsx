@@ -9,21 +9,32 @@ export const Route = createFileRoute("/_authenticated/upgrade")({
 
 const PLANS = [
   {
-    id: "monthly",
-    name: "شهري",
+    id: "basic" as const,
+    name: "أساسي",
+    price: 9,
+    period: "شهر",
+    highlight: false,
+    tag: "للتمارين",
+    features: ["الوصول لكل تمارين المنصة", "بطاقات مفردات وتمارين تفاعلية", "تتبع النقاط والتقدم", "بلا جلسات حيّة"],
+  },
+  {
+    id: "monthly" as const,
+    name: "Premium شهري",
     price: 49,
     period: "شهر",
     highlight: false,
-    features: ["جميع الدورات", "جلسات حيّة لا محدودة", "شهادات معتمدة", "دعم خلال 24س"],
+    tag: "Premium",
+    features: ["كل ما في الأساسي", "جميع الدورات المتقدمة", "جلسات حيّة لا محدودة", "شهادات معتمدة", "دعم خلال 24س"],
   },
   {
-    id: "yearly",
-    name: "سنوي",
+    id: "yearly" as const,
+    name: "Premium سنوي",
     price: 399,
     period: "سنة",
     highlight: true,
     saving: "وفّر 33%",
-    features: ["كل ما في الشهري", "وصول مدى الحياة لمحتوى المبتدئين", "أولوية حجز المعلمين", "ورش حصرية"],
+    tag: "Premium",
+    features: ["كل ما في Premium الشهري", "وصول مدى الحياة لمحتوى المبتدئين", "أولوية حجز المعلمين", "ورش حصرية"],
   },
 ];
 
@@ -59,7 +70,7 @@ function UpgradePage() {
           })}
         </div>
 
-        <div className="grid sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
+        <div className="grid sm:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {PLANS.map((p) => (
             <div
               key={p.id}
@@ -72,6 +83,7 @@ function UpgradePage() {
                 </div>
               )}
               <div className="mb-5">
+                <div className="text-xs font-semibold text-muted-foreground mb-1 uppercase">{p.tag}</div>
                 <div className="text-sm text-muted-foreground mb-1">{p.name}</div>
                 <div className="flex items-baseline gap-1">
                   <span className="text-5xl font-bold">{p.price}</span>

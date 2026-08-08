@@ -559,7 +559,10 @@ export type Database = {
           learning_goal: string | null
           level: string | null
           parent_id: string | null
+          phone: string | null
           points: number
+          school_grade: string | null
+          school_name: string | null
           premium_until: string | null
           specialty_language: string | null
           teacher_profile_completed: boolean
@@ -582,7 +585,10 @@ export type Database = {
           learning_goal?: string | null
           level?: string | null
           parent_id?: string | null
+          phone?: string | null
           points?: number
+          school_grade?: string | null
+          school_name?: string | null
           premium_until?: string | null
           specialty_language?: string | null
           teacher_profile_completed?: boolean
@@ -605,7 +611,10 @@ export type Database = {
           learning_goal?: string | null
           level?: string | null
           parent_id?: string | null
+          phone?: string | null
           points?: number
+          school_grade?: string | null
+          school_name?: string | null
           premium_until?: string | null
           specialty_language?: string | null
           teacher_profile_completed?: boolean
@@ -794,6 +803,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      self_register_as_teacher: { Args: never; Returns: undefined }
+      activate_basic_subscription: {
+        Args: {
+          _amount: number
+          _currency: string
+          _days: number
+          _provider: string
+          _provider_ref: string
+        }
+        Returns: {
+          invoice_id: string
+          subscription_until: string
+        }[]
+      }
       activate_premium: {
         Args: {
           _amount: number

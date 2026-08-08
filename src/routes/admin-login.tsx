@@ -48,14 +48,14 @@ function AdminLogin() {
         const { error: bErr } = await supabase.rpc("bootstrap_first_admin");
         if (bErr) throw bErr;
         toast.success("تم إنشاء أول حساب أدمن");
-        navigate({ to: "/admin" });
+        navigate({ to: "/admin-dashboard" });
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         const { data: u } = await supabase.auth.getUser();
         const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", u.user!.id);
         if (!roles?.some(r => r.role === "admin")) { await supabase.auth.signOut(); throw new Error("هذا الحساب ليس أدمن"); }
-        navigate({ to: "/admin" });
+        navigate({ to: "/admin-dashboard" });
       }
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "خطأ");

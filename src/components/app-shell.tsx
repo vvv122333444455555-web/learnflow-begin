@@ -26,7 +26,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     })();
   }, [pathname]);
 
-  const links: NavItem[] = [
+  const studentLinks: NavItem[] = [
     { to: "/dashboard", label: "الرئيسية", icon: LayoutDashboard },
     { to: "/courses", label: "الدورات", icon: BookOpen },
     { to: "/my-courses", label: "دوراتي", icon: Library },
@@ -35,11 +35,18 @@ export function AppShell({ children }: { children: ReactNode }) {
     { to: "/curriculum/tunisian", label: "بنك المناهج التونسية 🇹🇳", icon: BookMarked },
     { to: "/live-sessions", label: "الجلسات الحيّة", icon: Video, premium: true },
     { to: "/invoices", label: "الفواتير", icon: Receipt },
-    ...(isTeacher ? [
-      { to: "/teach/availability", label: "بوابة المعلّم", icon: Presentation },
-      { to: "/teach/widgets", label: "منشئ النشاطات", icon: Wand2 },
-    ] : []),
   ];
+
+  const teacherLinks: NavItem[] = [
+    { to: "/teach/dashboard", label: "لوحة التحكم", icon: LayoutDashboard },
+    { to: "/teach/builder", label: "صانع التمارين", icon: Wand2 },
+    { to: "/teach/library", label: "مكتبة القوالب", icon: Library },
+    { to: "/teach/availability", label: "بوابة المعلّم", icon: Presentation },
+    { to: "/teach/widgets", label: "منشئ النشاطات", icon: Wand2 },
+    { to: "/invoices", label: "الفواتير", icon: Receipt },
+  ];
+
+  const links: NavItem[] = isTeacher ? teacherLinks : studentLinks;
 
   const signOut = async () => {
     await supabase.auth.signOut();
@@ -56,7 +63,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <span className="text-lg font-bold">لغات</span>
         </div>
 
-        {!isPremium && (
+        {!isPremium && !isTeacher && (
           <Link
             to="/upgrade"
             className="mb-6 p-3 rounded-xl text-white text-sm font-semibold flex items-center gap-2"
@@ -65,7 +72,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Crown className="w-4 h-4" /> ترقية إلى Premium
           </Link>
         )}
-        {isPremium && (
+        {isPremium && !isTeacher && (
           <div className="mb-6 p-3 rounded-xl bg-accent/10 border border-accent/30 text-sm font-semibold flex items-center gap-2">
             <Crown className="w-4 h-4 text-accent-foreground" /> عضو Premium
           </div>
@@ -95,7 +102,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="pt-4 border-t border-border">
           <div className="px-3 py-2 mb-2">
             <div className="text-sm font-semibold text-foreground truncate">{name || "..."}</div>
-            <div className="text-xs text-muted-foreground">{isPremium ? "Premium" : "حساب مجاني"}</div>
+            <div className="text-xs text-muted-foreground">{isTeacher ? "حساب معلّم" : isPremium ? "Premium" : "حساب مجاني"}</div>
           </div>
           <button onClick={signOut} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition">
             <LogOut className="w-4 h-4" />

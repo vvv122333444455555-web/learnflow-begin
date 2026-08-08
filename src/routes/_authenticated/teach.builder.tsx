@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Plus, Trash2, Loader2, Send, Eye, Globe, Lock, CloudUpload } from "lucide-react";
+import { Plus, Trash2, Loader2, Send, Eye, Globe, Lock, CloudUpload, Wand2 } from "lucide-react";
 import { ExercisePlayer } from "@/components/exercise-player";
 import { useRoleGuard } from "@/hooks/use-role-guard";
 
@@ -112,7 +112,7 @@ function Builder() {
       target_grade: track === "kids" ? grade || null : null,
       target_module: track === "kids" ? module || null : null,
       target_term: track === "kids" ? term || null : null,
-      target_language: track === "adults" ? language || null : null,
+      target_language: language || null,
       target_level: track === "adults" ? level || null : null,
     }).select("id").single();
     if (error) { setLoading(false); return toast.error(error.message); }
@@ -218,18 +218,18 @@ function Builder() {
                 </div>
               )}
 
-              {track === "adults" && (
-                <div className="grid grid-cols-2 gap-2">
-                  <select value={language} onChange={(e) => setLanguage(e.target.value)} className="px-3 py-2 rounded-lg border border-input bg-background text-sm">
-                    <option value="">اللغة</option>
-                    {LANGUAGES.map((l) => <option key={l} value={l}>{l}</option>)}
-                  </select>
+              <div className="grid grid-cols-2 gap-2">
+                <select value={language} onChange={(e) => setLanguage(e.target.value)} className="px-3 py-2 rounded-lg border border-input bg-background text-sm">
+                  <option value="">اللغة (للنطق الصوتي)</option>
+                  {LANGUAGES.map((l) => <option key={l} value={l}>{l}</option>)}
+                </select>
+                {track === "adults" && (
                   <select value={level} onChange={(e) => setLevel(e.target.value)} className="px-3 py-2 rounded-lg border border-input bg-background text-sm">
                     <option value="">المستوى</option>
                     {LEVELS.map((l) => <option key={l} value={l}>{l}</option>)}
                   </select>
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
             <Editor type={type} content={content} setContent={setContent} />
@@ -397,9 +397,28 @@ function OrderQ({ q, onChange }: any) {
 }
 function FlashEditor({ content, setContent }: any) {
   const cards: any[] = content.cards ?? [];
+  const [generating, setGenerating] = useState<number | null>(null);
   const upd = (i: number, patch: any) => setContent({ cards: cards.map((c, x) => x === i ? { ...c, ...patch } : c) });
   const add = () => setContent({ cards: [...cards, defaultCard()] });
   const rm = (i: number) => setContent({ cards: cards.filter((_, x) => x !== i) });
+
+  const generateImage = async (i: number) => {
+    const word = cards[i]?.front?.trim();
+    if (!word) { toast.error("اكتب الوجه الأمامي للبطاقة أولاً"); return; }
+    setGenerating(i);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-image", { body: { word } });
+      if (error) throw error;
+      if (data?.error) throw new Error(data.error);
+      upd(i, { image: data.image });
+      toast.success("تم توليد الصورة");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "تعذر توليد الصورة");
+    } finally {
+      setGenerating(null);
+    }
+  };
+
   return (
     <>
       {cards.map((c, i) => (
@@ -412,8 +431,18 @@ function FlashEditor({ content, setContent }: any) {
             className="w-full px-3 py-2 rounded-lg border border-input bg-background" />
           <input value={c.back} onChange={(e) => upd(i, { back: e.target.value })} placeholder="الوجه الخلفي"
             className="w-full px-3 py-2 rounded-lg border border-input bg-background" />
-          <input value={c.image ?? ""} onChange={(e) => upd(i, { image: e.target.value })} placeholder="رابط صورة (اختياري)"
-            className="w-full px-3 py-2 rounded-lg border border-input bg-background" />
+          <div className="flex items-center gap-2">
+            <input value={c.image ?? ""} onChange={(e) => upd(i, { image: e.target.value })} placeholder="رابط صورة (اختياري)"
+              className="flex-1 px-3 py-2 rounded-lg border border-input bg-background" />
+            <button type="button" onClick={() => generateImage(i)} disabled={generating === i}
+              className="px-3 py-2 rounded-lg border border-primary text-primary text-sm font-medium inline-flex items-center gap-1.5 shrink-0 disabled:opacity-50">
+              {generating === i ? <Loader2 className="w-4 h-4 animate-spin" /> : <Wand2 className="w-4 h-4" />}
+              توليد بالذكاء الاصطناعي
+            </button>
+          </div>
+          {c.image && (
+            <img src={c.image} alt={c.front} className="h-24 rounded-lg border border-border object-cover" />
+          )}
         </div>
       ))}
       <button onClick={add} className="w-full py-3 rounded-xl border-2 border-dashed border-primary text-primary font-semibold inline-flex items-center justify-center gap-2">

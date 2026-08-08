@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { ExercisePlayer, type Exercise } from "@/components/exercise-player";
 import { useRoleGuard } from "@/hooks/use-role-guard";
+import { Mascot } from "@/components/mascot";
 
 export const Route = createFileRoute("/_authenticated/kids/exercises")({
   component: KidsExercises,
@@ -16,7 +17,7 @@ function KidsExercises() {
   const [result, setResult] = useState<{ score: number; max_score: number } | null>(null);
 
   useEffect(() => { if (!ready) return; (async () => {
-    const { data } = await supabase.from("exercises").select("id, title, type, content, video_url").eq("published", true).order("created_at", { ascending: false });
+    const { data } = await supabase.from("exercises").select("id, title, type, content, video_url, target_language").eq("published", true).order("created_at", { ascending: false });
     setList((data ?? []) as Exercise[]);
   })(); }, [ready]);
 
@@ -29,8 +30,10 @@ function KidsExercises() {
   };
 
   if (active && result) {
+    const great = result.score === result.max_score;
     return (
       <div className="min-h-screen p-6 flex items-center justify-center" dir="rtl" style={{ background: "linear-gradient(180deg, #FFF1F5, #FFF8E7)" }}>
+        <Mascot context={great ? "kids_result_great" : "kids_result_ok"} palette="kid" />
         <div className="bg-white p-10 rounded-3xl text-center shadow-2xl max-w-md">
           <div className="text-6xl mb-4">{result.score === result.max_score ? "🏆" : result.score >= result.max_score / 2 ? "🎉" : "💪"}</div>
           <h2 className="text-3xl font-bold mb-2">{result.score} / {result.max_score}</h2>
@@ -55,6 +58,7 @@ function KidsExercises() {
 
   return (
     <div className="min-h-screen p-6" dir="rtl" style={{ background: "linear-gradient(180deg, #FFF1F5, #FFF8E7)" }}>
+      <Mascot context="kids_exercises" palette="kid" />
       <div className="max-w-2xl mx-auto space-y-3">
         <Link to="/kids" className="text-sm">← الرئيسية</Link>
         <h1 className="text-2xl font-bold">تماريني 📚</h1>

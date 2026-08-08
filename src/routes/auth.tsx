@@ -31,6 +31,10 @@ function AuthPage() {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
+  const [age, setAge] = useState("");
+  const [schoolGrade, setSchoolGrade] = useState("");
+  const [schoolName, setSchoolName] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -38,11 +42,17 @@ function AuthPage() {
     navigate({ to: profileTrack === "kids" ? "/kids" : "/adults" });
   };
 
+  const SCHOOL_GRADES = ["السنة 3", "السنة 4", "السنة 5", "السنة 6", "السنة 7", "السنة 8", "السنة 9"];
+
   const applySelectedStudentTrack = async () => {
     const accountType = track === "kids" ? (isParent ? "parent" : "child") : "adult";
     const { data, error } = await supabase.rpc("set_my_student_track" as never, {
       _track: track,
       _account_type: accountType,
+      _phone: phone || null,
+      _age: track === "kids" && !isParent && age ? Number(age) : null,
+      _school_grade: track === "kids" && !isParent ? schoolGrade || null : null,
+      _school_name: track === "kids" && !isParent ? schoolName || null : null,
     } as never);
 
     if (error) throw error;
@@ -183,6 +193,25 @@ function AuthPage() {
             )}
             <Field icon={<Mail className="w-4 h-4"/>} label="البريد الإلكتروني" type="email" placeholder="you@example.com" value={email} onChange={setEmail} required />
             <Field icon={<Lock className="w-4 h-4"/>} label="كلمة المرور" type="password" placeholder="••••••••" value={password} onChange={setPassword} required />
+
+            {mode === "signup" && kidsUI && !isParent && (
+              <>
+                <Field icon={<User className="w-4 h-4"/>} label="رقم الهاتف (ولي الأمر)" type="tel" placeholder="2XXXXXXX" value={phone} onChange={setPhone} required />
+                <Field icon={<User className="w-4 h-4"/>} label="العمر" type="number" placeholder="8" value={age} onChange={setAge} required />
+                <label className="block">
+                  <span className="text-sm font-medium mb-1.5 block">السنة الدراسية</span>
+                  <select value={schoolGrade} onChange={(e) => setSchoolGrade(e.target.value)} required
+                    className="w-full px-4 py-3 rounded-xl border border-input bg-card focus:outline-none focus:ring-2 focus:ring-ring">
+                    <option value="" disabled>اختر السنة الدراسية</option>
+                    {SCHOOL_GRADES.map((g) => <option key={g} value={g}>{g}</option>)}
+                  </select>
+                </label>
+                <Field icon={<User className="w-4 h-4"/>} label="اسم المدرسة" type="text" placeholder="مدرسة..." value={schoolName} onChange={setSchoolName} required />
+              </>
+            )}
+            {mode === "signup" && kidsUI && isParent && (
+              <Field icon={<User className="w-4 h-4"/>} label="رقم الهاتف (اختياري)" type="tel" placeholder="2XXXXXXX" value={phone} onChange={setPhone} />
+            )}
 
             <button type="submit" disabled={loading}
               className="w-full py-3 rounded-xl font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-60"

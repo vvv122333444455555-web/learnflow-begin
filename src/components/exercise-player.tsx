@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react";
 import { EmbeddedVideo } from "@/components/embedded-video";
+import { SpeakButton, PronunciationPractice } from "@/components/pronunciation";
+import { langToCode } from "@/hooks/use-speech";
 
-export type Exercise = { id: string; title: string; type: string; content: any; video_url?: string | null };
+export type Exercise = { id: string; title: string; type: string; content: any; video_url?: string | null; target_language?: string | null };
 
 export function ExercisePlayer({ ex, onSubmit, palette = "adult" }: {
   ex: Exercise;
@@ -10,6 +12,7 @@ export function ExercisePlayer({ ex, onSubmit, palette = "adult" }: {
 }) {
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const set = (i: number, v: any) => setAnswers(a => ({ ...a, [String(i)]: v }));
+  const lang = langToCode(ex.target_language);
 
   const primary = palette === "kid" ? "linear-gradient(135deg,#FF6B9D,#FEC260)" : "var(--gradient-hero)";
   const accent = palette === "kid" ? "border-pink-500 bg-pink-50" : "border-primary bg-primary/5";
@@ -18,10 +21,12 @@ export function ExercisePlayer({ ex, onSubmit, palette = "adult" }: {
     if (ex.type === "mcq") {
       const qs = ex.content?.questions ?? [];
       return qs.map((q: any, i: number) => (
-        <Card key={i} n={i + 1} q={q.question}>
+        <Card key={i} n={i + 1} q={q.question} lang={lang}>
           {q.options.map((o: string, oi: number) => (
-            <label key={oi} className={`block p-3 rounded-xl border-2 cursor-pointer transition ${answers[i] === oi ? accent : "border-border"}`}>
-              <input type="radio" className="ml-2" checked={answers[i] === oi} onChange={() => set(i, oi)}/>{o}
+            <label key={oi} className={`flex items-center gap-2 p-3 rounded-xl border-2 cursor-pointer transition ${answers[i] === oi ? accent : "border-border"}`}>
+              <input type="radio" checked={answers[i] === oi} onChange={() => set(i, oi)}/>
+              <span className="flex-1">{o}</span>
+              <SpeakButton text={o} lang={lang} />
             </label>
           ))}
         </Card>
@@ -31,7 +36,7 @@ export function ExercisePlayer({ ex, onSubmit, palette = "adult" }: {
     if (ex.type === "true_false") {
       const qs = ex.content?.questions ?? [];
       return qs.map((q: any, i: number) => (
-        <Card key={i} n={i + 1} q={q.statement}>
+        <Card key={i} n={i + 1} q={q.statement} lang={lang}>
           <div className="grid grid-cols-2 gap-3">
             {[{ v: true, l: "صحيح ✓" }, { v: false, l: "خطأ ✗" }].map(o => (
               <button key={String(o.v)} type="button" onClick={() => set(i, o.v)}
@@ -78,6 +83,7 @@ export function ExercisePlayer({ ex, onSubmit, palette = "adult" }: {
               {left.map((l, li) => (
                 <div key={li} className="flex items-center gap-2">
                   <span className="flex-1 p-2 rounded-lg bg-muted">{l}</span>
+                  <SpeakButton text={l} lang={lang} />
                   <span>←</span>
                   <select value={sel[li] ?? -1} onChange={(e) => { const c = [...sel]; c[li] = +e.target.value; set(i, c); }}
                     className="flex-1 p-2 rounded-lg border border-input bg-background">
@@ -94,12 +100,12 @@ export function ExercisePlayer({ ex, onSubmit, palette = "adult" }: {
 
     if (ex.type === "ordering") {
       const qs = ex.content?.questions ?? [];
-      return qs.map((q: any, i: number) => <OrderingQ key={i} n={i + 1} words={q.correct ?? []} value={answers[i]} onChange={(v) => set(i, v)}/>);
+      return qs.map((q: any, i: number) => <OrderingQ key={i} n={i + 1} words={q.correct ?? []} value={answers[i]} onChange={(v) => set(i, v)} lang={lang}/>);
     }
 
     if (ex.type === "flashcards") {
       const cards = ex.content?.cards ?? [];
-      return <FlashcardsView cards={cards}/>;
+      return <FlashcardsView cards={cards} lang={lang}/>;
     }
 
     return <div className="text-muted-foreground">نوع غير مدعوم بعد</div>;
@@ -117,20 +123,26 @@ export function ExercisePlayer({ ex, onSubmit, palette = "adult" }: {
   );
 }
 
-function Card({ n, q, children }: { n: number; q?: string; children: React.ReactNode }) {
+function Card({ n, q, lang, children }: { n: number; q?: string; lang?: string; children: React.ReactNode }) {
   return (
     <div className="bg-card p-5 rounded-2xl shadow border">
       <div className="text-xs text-muted-foreground mb-1">سؤال {n}</div>
-      {q && <div className="font-bold mb-3">{q}</div>}
+      {q && (
+        <div className="flex items-center gap-2 mb-3">
+          <div className="font-bold flex-1">{q}</div>
+          {lang && <SpeakButton text={q} lang={lang} />}
+        </div>
+      )}
       <div className="space-y-2">{children}</div>
     </div>
   );
 }
 
-function OrderingQ({ n, words, value, onChange }: { n: number; words: string[]; value?: string[]; onChange: (v: string[]) => void }) {
+function OrderingQ({ n, words, value, onChange, lang }: { n: number; words: string[]; value?: string[]; onChange: (v: string[]) => void; lang: string }) {
   const shuffled = useMemo(() => [...words].sort(() => Math.random() - 0.5), [words]);
   const picked: string[] = value ?? [];
   const available = shuffled.filter(w => picked.filter(p => p === w).length < shuffled.filter(x => x === w).length);
+  const isComplete = picked.length === words.length && words.length > 0;
   return (
     <Card n={n} q="رتّب الكلمات:">
       <div className="min-h-12 p-3 rounded-xl border-2 border-dashed flex flex-wrap gap-2 mb-2">
@@ -145,22 +157,31 @@ function OrderingQ({ n, words, value, onChange }: { n: number; words: string[]; 
             className="px-3 py-1 rounded-lg border-2 border-border hover:border-primary">{w}</button>
         ))}
       </div>
+      {isComplete && (
+        <div className="mt-3 pt-3 border-t">
+          <PronunciationPractice text={picked.join(" ")} lang={lang} />
+        </div>
+      )}
     </Card>
   );
 }
 
-function FlashcardsView({ cards }: { cards: any[] }) {
+function FlashcardsView({ cards, lang }: { cards: any[]; lang: string }) {
   const [i, setI] = useState(0);
   const [flip, setFlip] = useState(false);
   if (!cards.length) return <div>لا توجد بطاقات</div>;
   const c = cards[i];
+  const shownText = flip ? c.back : c.front;
   return (
     <div className="bg-card p-8 rounded-2xl shadow border text-center">
       <div className="text-xs text-muted-foreground mb-2">{i + 1} / {cards.length}</div>
       <button onClick={() => setFlip(f => !f)} className="w-full min-h-40 flex items-center justify-center text-3xl font-bold p-6 rounded-xl bg-muted">
-        {flip ? c.back : c.front}
+        {shownText}
       </button>
       {c.image && <img src={c.image} alt="" className="mx-auto mt-3 max-h-40 rounded-lg"/>}
+      <div className="flex justify-center mt-3">
+        <PronunciationPractice text={String(c.front ?? "")} lang={lang} />
+      </div>
       <div className="flex justify-between mt-4">
         <button onClick={() => { setFlip(false); setI(Math.max(0, i - 1)); }} disabled={i === 0} className="px-4 py-2 rounded-lg border">السابق</button>
         <button onClick={() => setFlip(f => !f)} className="px-4 py-2 rounded-lg border">قلب</button>
