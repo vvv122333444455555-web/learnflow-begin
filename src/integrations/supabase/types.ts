@@ -14,6 +14,38 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_chat_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          role: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_chat_messages_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       class_members: {
         Row: {
           class_id: string
@@ -547,11 +579,13 @@ export type Database = {
           account_type: string
           avatar_url: string | null
           badges: Json
+          basic_subscription_until: string | null
           bio: string | null
           cefr_level: string | null
           created_at: string
           email: string | null
           full_name: string | null
+          has_basic_subscription: boolean
           id: string
           is_premium: boolean
           kid_age: number | null
@@ -561,9 +595,9 @@ export type Database = {
           parent_id: string | null
           phone: string | null
           points: number
+          premium_until: string | null
           school_grade: string | null
           school_name: string | null
-          premium_until: string | null
           specialty_language: string | null
           teacher_profile_completed: boolean
           track: string | null
@@ -573,11 +607,13 @@ export type Database = {
           account_type?: string
           avatar_url?: string | null
           badges?: Json
+          basic_subscription_until?: string | null
           bio?: string | null
           cefr_level?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
+          has_basic_subscription?: boolean
           id: string
           is_premium?: boolean
           kid_age?: number | null
@@ -587,9 +623,9 @@ export type Database = {
           parent_id?: string | null
           phone?: string | null
           points?: number
+          premium_until?: string | null
           school_grade?: string | null
           school_name?: string | null
-          premium_until?: string | null
           specialty_language?: string | null
           teacher_profile_completed?: boolean
           track?: string | null
@@ -599,11 +635,13 @@ export type Database = {
           account_type?: string
           avatar_url?: string | null
           badges?: Json
+          basic_subscription_until?: string | null
           bio?: string | null
           cefr_level?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
+          has_basic_subscription?: boolean
           id?: string
           is_premium?: boolean
           kid_age?: number | null
@@ -613,9 +651,9 @@ export type Database = {
           parent_id?: string | null
           phone?: string | null
           points?: number
+          premium_until?: string | null
           school_grade?: string | null
           school_name?: string | null
-          premium_until?: string | null
           specialty_language?: string | null
           teacher_profile_completed?: boolean
           track?: string | null
@@ -803,7 +841,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      self_register_as_teacher: { Args: never; Returns: undefined }
       activate_basic_subscription: {
         Args: {
           _amount: number
@@ -888,38 +925,89 @@ export type Database = {
       }
       redeem_teacher_code: { Args: { _code: string }; Returns: undefined }
       revoke_teacher_code: { Args: { _code: string }; Returns: undefined }
-      set_my_student_track: {
-        Args: { _account_type?: string; _track: string }
-        Returns: {
-          account_type: string
-          avatar_url: string | null
-          badges: Json
-          bio: string | null
-          cefr_level: string | null
-          created_at: string
-          email: string | null
-          full_name: string | null
-          id: string
-          is_premium: boolean
-          kid_age: number | null
-          kid_name: string | null
-          learning_goal: string | null
-          level: string | null
-          parent_id: string | null
-          points: number
-          premium_until: string | null
-          specialty_language: string | null
-          teacher_profile_completed: boolean
-          track: string | null
-          updated_at: string
-        }
-        SetofOptions: {
-          from: "*"
-          to: "profiles"
-          isOneToOne: true
-          isSetofReturn: false
-        }
-      }
+      self_register_as_teacher: { Args: never; Returns: undefined }
+      set_my_student_track:
+        | {
+            Args: { _account_type?: string; _track: string }
+            Returns: {
+              account_type: string
+              avatar_url: string | null
+              badges: Json
+              basic_subscription_until: string | null
+              bio: string | null
+              cefr_level: string | null
+              created_at: string
+              email: string | null
+              full_name: string | null
+              has_basic_subscription: boolean
+              id: string
+              is_premium: boolean
+              kid_age: number | null
+              kid_name: string | null
+              learning_goal: string | null
+              level: string | null
+              parent_id: string | null
+              phone: string | null
+              points: number
+              premium_until: string | null
+              school_grade: string | null
+              school_name: string | null
+              specialty_language: string | null
+              teacher_profile_completed: boolean
+              track: string | null
+              updated_at: string
+            }
+            SetofOptions: {
+              from: "*"
+              to: "profiles"
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
+        | {
+            Args: {
+              _account_type?: string
+              _age?: number
+              _phone?: string
+              _school_grade?: string
+              _school_name?: string
+              _track: string
+            }
+            Returns: {
+              account_type: string
+              avatar_url: string | null
+              badges: Json
+              basic_subscription_until: string | null
+              bio: string | null
+              cefr_level: string | null
+              created_at: string
+              email: string | null
+              full_name: string | null
+              has_basic_subscription: boolean
+              id: string
+              is_premium: boolean
+              kid_age: number | null
+              kid_name: string | null
+              learning_goal: string | null
+              level: string | null
+              parent_id: string | null
+              phone: string | null
+              points: number
+              premium_until: string | null
+              school_grade: string | null
+              school_name: string | null
+              specialty_language: string | null
+              teacher_profile_completed: boolean
+              track: string | null
+              updated_at: string
+            }
+            SetofOptions: {
+              from: "*"
+              to: "profiles"
+              isOneToOne: true
+              isSetofReturn: false
+            }
+          }
       submit_exercise:
         | {
             Args: { _answers: Json; _exercise_id: string }
