@@ -593,6 +593,7 @@ export type Database = {
           learning_goal: string | null
           level: string | null
           parent_id: string | null
+          parental_consent_at: string | null
           phone: string | null
           points: number
           premium_until: string | null
@@ -621,6 +622,7 @@ export type Database = {
           learning_goal?: string | null
           level?: string | null
           parent_id?: string | null
+          parental_consent_at?: string | null
           phone?: string | null
           points?: number
           premium_until?: string | null
@@ -649,6 +651,7 @@ export type Database = {
           learning_goal?: string | null
           level?: string | null
           parent_id?: string | null
+          parental_consent_at?: string | null
           phone?: string | null
           points?: number
           premium_until?: string | null
@@ -870,6 +873,10 @@ export type Database = {
       }
       admin_exists: { Args: never; Returns: boolean }
       bootstrap_first_admin: { Args: never; Returns: undefined }
+      can_student_access_exercise: {
+        Args: { _exercise_id: string; _user_id: string }
+        Returns: boolean
+      }
       clone_template_to_exercise: {
         Args: { _template_id: string }
         Returns: string
@@ -947,6 +954,7 @@ export type Database = {
               learning_goal: string | null
               level: string | null
               parent_id: string | null
+              parental_consent_at: string | null
               phone: string | null
               points: number
               premium_until: string | null
@@ -991,6 +999,7 @@ export type Database = {
               learning_goal: string | null
               level: string | null
               parent_id: string | null
+              parental_consent_at: string | null
               phone: string | null
               points: number
               premium_until: string | null
