@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
-import { Mail, Lock, User, Languages, Sparkles, Loader2, Baby, Users } from "lucide-react";
+import { Mail, Lock, User, Languages, Sparkles, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
@@ -27,14 +27,10 @@ function AuthPage() {
   const [mode, setMode] = useState<"login" | "signup">(trackParam ? "signup" : "login");
   const [track, setTrack] = useState<"kids" | "adults">(trackParam ?? "adults");
   const [trackExplicit, setTrackExplicit] = useState(!!trackParam);
-  const [isParent, setIsParent] = useState(false);
+  
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [phone, setPhone] = useState("");
-  const [age, setAge] = useState("");
-  const [schoolGrade, setSchoolGrade] = useState("");
-  const [schoolName, setSchoolName] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -42,18 +38,12 @@ function AuthPage() {
     navigate({ to: profileTrack === "kids" ? "/kids" : "/adults" });
   };
 
-  const SCHOOL_GRADES = ["السنة 3", "السنة 4", "السنة 5", "السنة 6", "السنة 7", "السنة 8", "السنة 9"];
 
   const applySelectedStudentTrack = async () => {
-    const accountType = track === "kids" ? (isParent ? "parent" : "child") : "adult";
-    const { data, error } = await supabase.rpc("set_my_student_track" as never, {
-      _track: track,
-      _account_type: accountType,
-      _phone: phone || null,
-      _age: track === "kids" && !isParent && age ? Number(age) : null,
-      _school_grade: track === "kids" && !isParent ? schoolGrade || null : null,
-      _school_name: track === "kids" && !isParent ? schoolName || null : null,
-    } as never);
+    const accountType = track === "kids" ? "parent" : "adult";
+    const { data, error } = await supabase.rpc("set_my_student_track", {
+      _track: track, _account_type: accountType,
+    });
 
     if (error) throw error;
     return data as Database["public"]["Tables"]["profiles"]["Row"] | null;
@@ -81,7 +71,7 @@ function AuthPage() {
     setLoading(true);
     try {
       if (mode === "signup") {
-        const account_type = track === "kids" ? (isParent ? "parent" : "child") : "adult";
+        const account_type = track === "kids" ? "parent" : "adult";
         const { data, error } = await supabase.auth.signUp({
           email, password,
           options: {
@@ -103,7 +93,8 @@ function AuthPage() {
           goToTrack(updatedProfile?.track ?? track);
         } else {
           const { data: u } = await supabase.auth.getUser();
-          const { data: p } = await supabase.from("profiles").select("track").eq("id", u.user!.id).maybeSingle();
+          if (!u.user) throw new Error("سجّل الدخول للمتابعة");
+          const { data: p } = await supabase.from("profiles").select("track").eq("id", u.user.id).maybeSingle();
           goToTrack(p?.track);
         }
       }
@@ -173,7 +164,7 @@ function AuthPage() {
               {mode === "login" ? "أريد الدخول إلى" : "اختر المسار"}
             </div>
             <div className="grid grid-cols-2 gap-3 mb-4">
-              <TrackBtn active={track === "adults"} onClick={() => { setTrack("adults"); setIsParent(false); setTrackExplicit(true); }}
+              <TrackBtn active={track === "adults"} onClick={() => { setTrack("adults"); setTrackExplicit(true); }}
                 icon="💼" label="كبار" />
               <TrackBtn active={track === "kids"} onClick={() => { setTrack("kids"); setTrackExplicit(true); }}
                 icon="🎨" label="أطفال" />
@@ -181,37 +172,16 @@ function AuthPage() {
           </div>
 
           {mode === "signup" && track === "kids" && (
-            <div className="grid grid-cols-2 gap-3 mb-4">
-              <SubType active={!isParent} onClick={() => setIsParent(false)} icon={<Baby className="w-4 h-4"/>} label="حساب طفل" />
-              <SubType active={isParent} onClick={() => setIsParent(true)} icon={<Users className="w-4 h-4"/>} label="حساب ولي أمر" />
-            </div>
+            <p className="mb-4 text-sm text-muted-foreground">حساب ولي أمر: استخدم اسمك وبريدك، وليس بيانات طفلك. إنشاء ملفات الأطفال وإدارتها غير متاح بعد.</p>
           )}
 
           <form onSubmit={onSubmit} className="space-y-3">
             {mode === "signup" && (
               <Field icon={<User className="w-4 h-4"/>} label="الاسم الكامل" type="text" placeholder="محمد أحمد" value={fullName} onChange={setFullName} required />
             )}
-            <Field icon={<Mail className="w-4 h-4"/>} label="البريد الإلكتروني" type="email" placeholder="you@example.com" value={email} onChange={setEmail} required />
+            <Field icon={<Mail className="w-4 h-4"/>} label={mode === "signup" && kidsUI ? "البريد الإلكتروني لولي الأمر" : "البريد الإلكتروني"} type="email" placeholder="you@example.com" value={email} onChange={setEmail} required />
             <Field icon={<Lock className="w-4 h-4"/>} label="كلمة المرور" type="password" placeholder="••••••••" value={password} onChange={setPassword} required />
 
-            {mode === "signup" && kidsUI && !isParent && (
-              <>
-                <Field icon={<User className="w-4 h-4"/>} label="رقم الهاتف (ولي الأمر)" type="tel" placeholder="2XXXXXXX" value={phone} onChange={setPhone} required />
-                <Field icon={<User className="w-4 h-4"/>} label="العمر" type="number" placeholder="8" value={age} onChange={setAge} required />
-                <label className="block">
-                  <span className="text-sm font-medium mb-1.5 block">السنة الدراسية</span>
-                  <select value={schoolGrade} onChange={(e) => setSchoolGrade(e.target.value)} required
-                    className="w-full px-4 py-3 rounded-xl border border-input bg-card focus:outline-none focus:ring-2 focus:ring-ring">
-                    <option value="" disabled>اختر السنة الدراسية</option>
-                    {SCHOOL_GRADES.map((g) => <option key={g} value={g}>{g}</option>)}
-                  </select>
-                </label>
-                <Field icon={<User className="w-4 h-4"/>} label="اسم المدرسة" type="text" placeholder="مدرسة..." value={schoolName} onChange={setSchoolName} required />
-              </>
-            )}
-            {mode === "signup" && kidsUI && isParent && (
-              <Field icon={<User className="w-4 h-4"/>} label="رقم الهاتف (اختياري)" type="tel" placeholder="2XXXXXXX" value={phone} onChange={setPhone} />
-            )}
 
             <button type="submit" disabled={loading}
               className="w-full py-3 rounded-xl font-semibold text-white flex items-center justify-center gap-2 disabled:opacity-60"
@@ -244,14 +214,6 @@ function TrackBtn({ active, onClick, icon, label }: { active: boolean; onClick: 
     <button type="button" onClick={onClick}
       className={`p-3 rounded-xl border-2 flex items-center justify-center gap-2 font-semibold text-sm ${active ? "border-primary bg-primary/5" : "border-border"}`}>
       <span className="text-2xl">{icon}</span> {label}
-    </button>
-  );
-}
-function SubType({ active, onClick, icon, label }: { active: boolean; onClick: () => void; icon: React.ReactNode; label: string }) {
-  return (
-    <button type="button" onClick={onClick}
-      className={`p-2.5 rounded-lg border flex items-center justify-center gap-2 text-sm ${active ? "border-primary bg-primary text-primary-foreground" : "border-border"}`}>
-      {icon} {label}
     </button>
   );
 }

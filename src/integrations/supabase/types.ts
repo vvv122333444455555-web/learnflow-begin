@@ -872,6 +872,10 @@ export type Database = {
         }[]
       }
       admin_exists: { Args: never; Returns: boolean }
+      admin_link_existing_child: {
+        Args: { _child_id: string; _parent_id: string }
+        Returns: undefined
+      }
       bootstrap_first_admin: { Args: never; Returns: undefined }
       can_student_access_exercise: {
         Args: { _exercise_id: string; _user_id: string }
@@ -922,6 +926,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_authorized_student: { Args: { _student_id: string }; Returns: boolean }
       is_exercise_assigned_to_user: {
         Args: { _exercise_id: string; _user_id: string }
         Returns: boolean
@@ -929,6 +934,26 @@ export type Database = {
       is_exercise_owner: {
         Args: { _exercise_id: string; _user_id: string }
         Returns: boolean
+      }
+      is_linked_parent: { Args: { _child_id: string }; Returns: boolean }
+      mark_lesson_complete: {
+        Args: { _enrollment_id: string; _lesson: number }
+        Returns: {
+          completed_lessons: number
+          course_id: string
+          created_at: string
+          id: string
+          progress: number
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "enrollments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       redeem_teacher_code: { Args: { _code: string }; Returns: undefined }
       revoke_teacher_code: { Args: { _code: string }; Returns: undefined }
