@@ -1,8 +1,12 @@
+import { authorizeWorkspace } from "@/lib/workspace-guard";
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useRoleGuard } from "@/hooks/use-role-guard";
 import { AiChatWidget } from "@/components/ai-chat-widget";
 
 export const Route = createFileRoute("/_authenticated/adults/chat")({
+  beforeLoad: () => authorizeWorkspace(["student"]),
+  head: () => pageHead("مساعد تعلم اللغات للكبار", "مساعد تعلم اللغات للكبار في منصة LearnFlow لتعلم اللغات."),
   component: AdultsChat,
 });
 

@@ -1,3 +1,5 @@
+import { authorizeWorkspace } from "@/lib/workspace-guard";
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,7 +8,8 @@ import { toast } from "sonner";
 import { Calendar, Plus, Trash2, GraduationCap, Loader2, CheckCircle2, Video, Copy, Users } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/teach/availability")({
-  head: () => ({ meta: [{ title: "إدارة المواعيد | المعلّم" }] }),
+  beforeLoad: () => authorizeWorkspace(["teacher", "admin"]),
+  head: () => pageHead("مواعيد المعلم", "مواعيد المعلم في منصة LearnFlow لتعلم اللغات."),
   component: TeacherAvailability,
 });
 

@@ -1,13 +1,9 @@
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { Languages, Sparkles, Rocket, Briefcase, GraduationCap, Shield } from "lucide-react";
 
 export const Route = createFileRoute("/")({
-  head: () => ({
-    meta: [
-      { title: "LearnFlow — منصة تعلّم اللغات في تونس" },
-      { name: "description", content: "اختر مسارك: مسار الأطفال المرح، أو مسار الكبار المهني. لغات، تمارين تفاعلية، ومعلّمون متخصصون." },
-    ],
-  }),
+  head: () => pageHead("منصة تعلم اللغات في تونس", "منصة تعلم اللغات في تونس في منصة LearnFlow لتعلم اللغات."),
   component: Index,
 });
 

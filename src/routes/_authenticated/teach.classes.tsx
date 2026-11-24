@@ -1,3 +1,5 @@
+import { authorizeWorkspace } from "@/lib/workspace-guard";
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -5,6 +7,8 @@ import { toast } from "sonner";
 import { Plus } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/teach/classes")({
+  beforeLoad: () => authorizeWorkspace(["teacher", "admin"]),
+  head: () => pageHead("فصول المعلم", "فصول المعلم في منصة LearnFlow لتعلم اللغات."),
   component: Classes,
 });
 

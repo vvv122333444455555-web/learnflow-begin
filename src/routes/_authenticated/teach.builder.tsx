@@ -1,3 +1,5 @@
+import { authorizeWorkspace } from "@/lib/workspace-guard";
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,6 +9,8 @@ import { ExercisePlayer } from "@/components/exercise-player";
 import { useRoleGuard } from "@/hooks/use-role-guard";
 
 export const Route = createFileRoute("/_authenticated/teach/builder")({
+  beforeLoad: () => authorizeWorkspace(["teacher", "admin"]),
+  head: () => pageHead("صانع التمارين", "صانع التمارين في منصة LearnFlow لتعلم اللغات."),
   component: Builder,
 });
 

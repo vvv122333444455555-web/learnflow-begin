@@ -1,3 +1,5 @@
+import { authorizeWorkspace } from "@/lib/workspace-guard";
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +10,8 @@ import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 
 export const Route = createFileRoute("/_authenticated/teach/exercise/$id")({
+  beforeLoad: () => authorizeWorkspace(["teacher", "admin"]),
+  head: () => pageHead("نتائج التمرين", "نتائج التمرين في منصة LearnFlow لتعلم اللغات."),
   component: ExerciseResults,
 });
 

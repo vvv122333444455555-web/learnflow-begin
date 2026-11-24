@@ -1,3 +1,5 @@
+import { authorizeWorkspace } from "@/lib/workspace-guard";
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -5,6 +7,8 @@ import { Star, Trophy, Rocket, BookOpen, Sparkles, LogOut, MessageCircle } from 
 import { Mascot } from "@/components/mascot";
 
 export const Route = createFileRoute("/_authenticated/kids/")({
+  beforeLoad: () => authorizeWorkspace(["student"]),
+  head: () => pageHead("فضاء الأطفال", "فضاء الأطفال في منصة LearnFlow لتعلم اللغات."),
   component: KidsDashboard,
 });
 

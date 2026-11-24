@@ -1,3 +1,5 @@
+import { authorizeWorkspace } from "@/lib/workspace-guard";
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -5,9 +7,11 @@ import { AppShell } from "@/components/app-shell";
 import { ArrowRight, ArrowLeft, CheckCircle2, Loader2, PlayCircle, BookOpen } from "lucide-react";
 import { getLessonContent } from "@/data/lesson-content";
 import { LessonContentView } from "@/components/lesson-content-view";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/courses/$id/lessons/$n")({
-  head: () => ({ meta: [{ title: "درس | منصة اللغات" }] }),
+  beforeLoad: () => authorizeWorkspace(["student"]),
+  head: () => pageHead("الدرس", "الدرس في منصة LearnFlow لتعلم اللغات."),
   component: LessonPage,
 });
 
@@ -94,15 +98,12 @@ function LessonPage() {
 
   const markComplete = async () => {
     setSaving(true);
-    const newCompleted = Math.max(completed, lessonNum);
-    const progress = Math.round((newCompleted / total) * 100);
-    const status = newCompleted >= total ? "completed" : "active";
-    await supabase
-      .from("enrollments")
-      .update({ completed_lessons: newCompleted, progress, status })
-      .eq("id", enrollmentId);
-    setCompleted(newCompleted);
+    const { data, error } = await supabase.rpc("mark_lesson_complete", {
+      _enrollment_id: enrollmentId, _lesson: lessonNum,
+    });
     setSaving(false);
+    if (error || !data) { toast.error(error?.message ?? "تعذر حفظ التقدم"); return; }
+    setCompleted(data.completed_lessons);
     if (!isLast) {
       navigate({ to: "/courses/$id/lessons/$n", params: { id, n: String(lessonNum + 1) } });
     } else {

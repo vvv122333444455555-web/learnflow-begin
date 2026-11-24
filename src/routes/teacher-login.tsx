@@ -1,3 +1,4 @@
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -5,7 +6,7 @@ import { GraduationCap, Mail, Lock, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/teacher-login")({
-  head: () => ({ meta: [{ title: "دخول المعلّم | LearnFlow" }] }),
+  head: () => pageHead("دخول المعلم", "دخول المعلم في منصة LearnFlow لتعلم اللغات."),
   component: TeacherLogin,
 });
 

@@ -1,3 +1,4 @@
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { z } from "zod";
@@ -5,6 +6,7 @@ import { Mail, Lock, User, Languages, Sparkles, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { toast } from "sonner";
+import { getWorkspaceRole, workspaceHome } from "@/lib/security-rules";
 import type { Database } from "@/integrations/supabase/types";
 
 const search = z.object({
@@ -13,12 +15,7 @@ const search = z.object({
 
 export const Route = createFileRoute("/auth")({
   validateSearch: search,
-  head: () => ({
-    meta: [
-      { title: "تسجيل الدخول | LearnFlow" },
-      { name: "description", content: "سجّل الدخول أو أنشئ حسابك في LearnFlow." },
-    ],
-  }),
+  head: () => pageHead("تسجيل الدخول", "تسجيل الدخول في منصة LearnFlow لتعلم اللغات."),
   component: AuthPage,
 });
 
@@ -26,7 +23,6 @@ function AuthPage() {
   const { track: trackParam } = Route.useSearch();
   const [mode, setMode] = useState<"login" | "signup">(trackParam ? "signup" : "login");
   const [track, setTrack] = useState<"kids" | "adults">(trackParam ?? "adults");
-  const [trackExplicit, setTrackExplicit] = useState(!!trackParam);
   
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -34,10 +30,16 @@ function AuthPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const goToTrack = (profileTrack?: string | null) => {
-    navigate({ to: profileTrack === "kids" ? "/kids" : "/adults" });
+  const goToTrack = async (_profileTrack?: string | null) => {
+    const { data: auth } = await supabase.auth.getUser();
+    if (!auth.user) return;
+    const [roles, profile] = await Promise.all([
+      supabase.from("user_roles").select("role").eq("user_id", auth.user.id),
+      supabase.from("profiles").select("track").eq("id", auth.user.id).maybeSingle(),
+    ]);
+    if (roles.error || profile.error || !profile.data) throw new Error("تعذر التحقق من الحساب");
+    await navigate({ to: workspaceHome(getWorkspaceRole((roles.data ?? []).map((r) => r.role)), profile.data.track) });
   };
-
 
   const applySelectedStudentTrack = async () => {
     const accountType = track === "kids" ? "parent" : "adult";
@@ -50,21 +52,8 @@ function AuthPage() {
   };
 
   useEffect(() => {
-    supabase.auth.getUser().then(async ({ data }) => {
-      if (!data.user) return;
-      if (trackParam) {
-        try {
-          const updatedProfile = await applySelectedStudentTrack();
-          goToTrack(updatedProfile?.track ?? trackParam);
-          return;
-        } catch {
-          // Teacher/admin accounts cannot be converted here; fall back to their saved workspace.
-        }
-      }
-      const { data: p } = await supabase.from("profiles").select("track").eq("id", data.user.id).maybeSingle();
-      goToTrack(p?.track);
-    });
-  }, [navigate, trackParam]);
+    void goToTrack().catch(() => toast.error("تعذر التحقق من الحساب"));
+  }, [navigate]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -88,15 +77,7 @@ function AuthPage() {
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        if (trackExplicit) {
-          const updatedProfile = await applySelectedStudentTrack();
-          goToTrack(updatedProfile?.track ?? track);
-        } else {
-          const { data: u } = await supabase.auth.getUser();
-          if (!u.user) throw new Error("سجّل الدخول للمتابعة");
-          const { data: p } = await supabase.from("profiles").select("track").eq("id", u.user.id).maybeSingle();
-          goToTrack(p?.track);
-        }
+        await goToTrack();
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : "خطأ";
@@ -164,9 +145,9 @@ function AuthPage() {
               {mode === "login" ? "أريد الدخول إلى" : "اختر المسار"}
             </div>
             <div className="grid grid-cols-2 gap-3 mb-4">
-              <TrackBtn active={track === "adults"} onClick={() => { setTrack("adults"); setTrackExplicit(true); }}
+              <TrackBtn active={track === "adults"} onClick={() => { setTrack("adults");  }}
                 icon="💼" label="كبار" />
-              <TrackBtn active={track === "kids"} onClick={() => { setTrack("kids"); setTrackExplicit(true); }}
+              <TrackBtn active={track === "kids"} onClick={() => { setTrack("kids");  }}
                 icon="🎨" label="أطفال" />
             </div>
           </div>

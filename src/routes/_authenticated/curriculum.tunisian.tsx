@@ -1,3 +1,5 @@
+import { authorizeWorkspace } from "@/lib/workspace-guard";
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { AppShell } from "@/components/app-shell";
@@ -5,7 +7,8 @@ import { TUNISIAN_CURRICULUM, type Module, type Exercise, type PairItem } from "
 import { Check, X, Sparkles, BookOpen, Trophy, RotateCcw, GraduationCap, Puzzle, Type as TypeIcon, ListChecks, BookMarked } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/curriculum/tunisian")({
-  head: () => ({ meta: [{ title: "بنك المناهج التونسية | LearnFlow" }] }),
+  beforeLoad: () => authorizeWorkspace(["student", "teacher", "admin"]),
+  head: () => pageHead("بنك المناهج التونسية", "بنك المناهج التونسية في منصة LearnFlow لتعلم اللغات."),
   component: TunisianCurriculumPage,
 });
 

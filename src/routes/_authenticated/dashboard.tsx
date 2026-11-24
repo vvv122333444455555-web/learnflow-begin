@@ -1,3 +1,5 @@
+import { authorizeWorkspace } from "@/lib/workspace-guard";
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -5,7 +7,8 @@ import { AppShell } from "@/components/app-shell";
 import { BookOpen, TrendingUp, Sparkles, ArrowLeft, Clock, Star, Trophy, Rocket, Heart, Zap } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
-  head: () => ({ meta: [{ title: "الرئيسية | منصة اللغات" }] }),
+  beforeLoad: () => authorizeWorkspace(["student"]),
+  head: () => pageHead("لوحة التعلم", "لوحة التعلم في منصة LearnFlow لتعلم اللغات."),
   component: Dashboard,
 });
 

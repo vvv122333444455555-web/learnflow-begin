@@ -1,9 +1,11 @@
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Shield, Loader2, Users, GraduationCap, Wand2, Crown, LogOut, BookOpen } from "lucide-react";
 
 export const Route = createFileRoute("/admin-dashboard")({
+  head: () => pageHead("لوحة الإدارة", "لوحة الإدارة في منصة LearnFlow لتعلم اللغات."),
   component: AdminDashboard,
 });
 

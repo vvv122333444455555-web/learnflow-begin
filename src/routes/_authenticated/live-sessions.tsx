@@ -1,3 +1,5 @@
+import { authorizeWorkspace } from "@/lib/workspace-guard";
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,7 +8,8 @@ import { toast } from "sonner";
 import { Calendar, Clock, Video, Loader2, CheckCircle2, ChevronRight, ChevronLeft, Sparkles, X } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/live-sessions")({
-  head: () => ({ meta: [{ title: "الجلسات الحيّة | منصة اللغات" }] }),
+  beforeLoad: () => authorizeWorkspace(["student", "teacher", "admin"]),
+  head: () => pageHead("الجلسات المباشرة", "الجلسات المباشرة في منصة LearnFlow لتعلم اللغات."),
   component: LiveSessionsPage,
 });
 

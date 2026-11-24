@@ -1,3 +1,5 @@
+import { authorizeWorkspace } from "@/lib/workspace-guard";
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,7 +8,8 @@ import { Download, Receipt, Loader2 } from "lucide-react";
 import { generateInvoicePDF } from "@/lib/invoice-pdf";
 
 export const Route = createFileRoute("/_authenticated/invoices")({
-  head: () => ({ meta: [{ title: "الفواتير | منصة اللغات" }] }),
+  beforeLoad: () => authorizeWorkspace(["student", "teacher", "admin"]),
+  head: () => pageHead("الفواتير", "الفواتير في منصة LearnFlow لتعلم اللغات."),
   component: InvoicesPage,
 });
 

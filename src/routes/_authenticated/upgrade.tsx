@@ -1,9 +1,12 @@
+import { authorizeWorkspace } from "@/lib/workspace-guard";
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AppShell } from "@/components/app-shell";
 import { Check, Crown, Sparkles, Video, BookOpen, Zap } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/upgrade")({
-  head: () => ({ meta: [{ title: "الترقية إلى Premium | منصة اللغات" }] }),
+  beforeLoad: () => authorizeWorkspace(["student", "teacher", "admin"]),
+  head: () => pageHead("خطط الاشتراك", "خطط الاشتراك في منصة LearnFlow لتعلم اللغات."),
   component: UpgradePage,
 });
 

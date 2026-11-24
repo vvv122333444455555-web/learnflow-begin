@@ -1,3 +1,5 @@
+import { authorizeWorkspace } from "@/lib/workspace-guard";
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, Check, Sparkles, Trophy, BookOpen, RotateCcw } from "lucide-react";
@@ -5,12 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/placement-test")({
-  head: () => ({
-    meta: [
-      { title: "اختبار تحديد المستوى | منصة اللغات" },
-      { name: "description", content: "اختبار قصير لتحديد مستواك في الإنجليزية أو الفرنسية أو الألمانية وترشيح أنسب دورة لك." },
-    ],
-  }),
+  beforeLoad: () => authorizeWorkspace(["student"]),
+  head: () => pageHead("اختبار تحديد المستوى", "اختبار تحديد المستوى في منصة LearnFlow لتعلم اللغات."),
   component: PlacementTestPage,
 });
 

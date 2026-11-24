@@ -1,3 +1,5 @@
+import { authorizeWorkspace } from "@/lib/workspace-guard";
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Check, ArrowLeft, Sprout, Flame, Mountain, Trophy, Loader2 } from "lucide-react";
@@ -5,12 +7,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/level")({
-  head: () => ({
-    meta: [
-      { title: "اختر مستواك | منصة اللغات" },
-      { name: "description", content: "حدّد مستواك في اللغة لنقترح عليك أنسب الدورات والدروس." },
-    ],
-  }),
+  beforeLoad: () => authorizeWorkspace(["student"]),
+  head: () => pageHead("اختيار المستوى", "اختيار المستوى في منصة LearnFlow لتعلم اللغات."),
   component: LevelPage,
 });
 

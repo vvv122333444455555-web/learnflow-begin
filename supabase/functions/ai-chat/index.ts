@@ -59,14 +59,20 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "الرسالة طويلة جدًا" }), { status: 400, headers: CORS_HEADERS });
     }
 
-    const { data: profile } = await supabase
+    const { data: profile, error: profileError } = await supabase
       .from("profiles")
       .select("track, account_type, full_name")
       .eq("id", userId)
       .maybeSingle();
 
-    const isKid = profile?.track === "kids" && profile?.account_type === "child";
-    const systemPrompt = isKid ? KID_SYSTEM_PROMPT : ADULT_SYSTEM_PROMPT;
+    // Fail closed before sending any child text to Gemini or saving a conversation.
+    // Includes shared parent/kids accounts until verified consent and guided AI are operational.
+    if (profileError || profile?.account_type !== "adult" || profile?.track !== "adults") {
+      return new Response(JSON.stringify({ error: "المساعد غير متاح للأطفال حاليًا حتى اعتماد موافقة ولي الأمر وضوابط التعلم الآمن." }), {
+        status: 403, headers: { ...CORS_HEADERS, "content-type": "application/json" },
+      });
+    }
+    const systemPrompt = ADULT_SYSTEM_PROMPT;
 
     const trimmedHistory = Array.isArray(history) ? history.slice(-MAX_HISTORY) : [];
     const contents = [

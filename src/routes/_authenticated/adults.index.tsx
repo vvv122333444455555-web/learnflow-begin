@@ -1,3 +1,5 @@
+import { authorizeWorkspace } from "@/lib/workspace-guard";
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,6 +15,8 @@ const GOALS = [
 ] as const;
 
 export const Route = createFileRoute("/_authenticated/adults/")({
+  beforeLoad: () => authorizeWorkspace(["student"]),
+  head: () => pageHead("فضاء الكبار", "فضاء الكبار في منصة LearnFlow لتعلم اللغات."),
   component: AdultsDashboard,
 });
 

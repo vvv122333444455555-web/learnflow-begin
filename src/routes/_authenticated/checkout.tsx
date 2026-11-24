@@ -1,3 +1,5 @@
+import { authorizeWorkspace } from "@/lib/workspace-guard";
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { z } from "zod";
 import { AppShell } from "@/components/app-shell";
@@ -5,14 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Lock } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/checkout")({
-  head: () => ({ meta: [
-    { title: "الدفع غير متاح | LearnFlow" },
-    { name: "description", content: "حالة الدفع والاشتراكات في LearnFlow." },
-    { property: "og:title", content: "الدفع غير متاح | LearnFlow" },
-    { property: "og:description", content: "حالة الدفع والاشتراكات في LearnFlow." },
-    { property: "og:type", content: "website" },
-    { name: "twitter:card", content: "summary" },
-  ] }),
+  beforeLoad: () => authorizeWorkspace(["student", "teacher", "admin"]),
+  head: () => pageHead("الدفع غير متاح", "الدفع غير متاح في منصة LearnFlow لتعلم اللغات."),
   validateSearch: z.object({ plan: z.enum(["basic", "monthly", "yearly"]).default("basic") }),
   component: CheckoutPage,
 });

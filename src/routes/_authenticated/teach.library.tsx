@@ -1,3 +1,5 @@
+import { authorizeWorkspace } from "@/lib/workspace-guard";
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,6 +8,8 @@ import { BookOpen, Copy, ArrowRight, Filter } from "lucide-react";
 import { useRoleGuard } from "@/hooks/use-role-guard";
 
 export const Route = createFileRoute("/_authenticated/teach/library")({
+  beforeLoad: () => authorizeWorkspace(["teacher", "admin"]),
+  head: () => pageHead("مكتبة المعلم", "مكتبة المعلم في منصة LearnFlow لتعلم اللغات."),
   component: Library,
 });
 

@@ -1,3 +1,5 @@
+import { authorizeWorkspace } from "@/lib/workspace-guard";
+import { pageHead } from "@/lib/page-head";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
@@ -5,7 +7,8 @@ import { AppShell } from "@/components/app-shell";
 import { ArrowRight, BookOpen, Clock, CheckCircle2, GraduationCap, Loader2, Sparkles } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/courses/$id")({
-  head: () => ({ meta: [{ title: "تفاصيل الدورة | منصة اللغات" }] }),
+  beforeLoad: () => authorizeWorkspace(["student"]),
+  head: () => pageHead("تفاصيل الدورة", "تفاصيل الدورة في منصة LearnFlow لتعلم اللغات."),
   component: CourseDetails,
 });
 
