@@ -1,6 +1,6 @@
 import { authorizeWorkspace } from "@/lib/workspace-guard";
 import { pageHead } from "@/lib/page-head";
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { AppShell } from "@/components/app-shell";
@@ -16,12 +16,6 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/_authenticated/teach/widgets")({
   beforeLoad: () => authorizeWorkspace(["teacher", "admin"]),
   head: () => pageHead("أنشطة المعلم", "أنشطة المعلم في منصة LearnFlow لتعلم اللغات."),
-  beforeLoad: async () => {
-    const { data: u } = await supabase.auth.getUser();
-    if (!u.user) throw redirect({ to: "/auth" });
-    const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", u.user.id);
-    if (!roles?.some((r) => r.role === "teacher")) throw redirect({ to: "/dashboard" });
-  },
   component: WidgetBuilderPage,
 });
 
