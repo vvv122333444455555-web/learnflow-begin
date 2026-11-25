@@ -326,6 +326,7 @@ function AdminInner({ onLogout }: { onLogout: () => void }) {
                       <th className="text-right p-2">النوع</th>
                       <th className="text-right p-2">التفاصيل</th>
                       <th className="text-right p-2">الانضمام</th>
+                      <th className="text-right p-2">وصول مجاني</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -341,6 +342,7 @@ function AdminInner({ onLogout }: { onLogout: () => void }) {
                             : (s.level ?? "—")}
                         </td>
                         <td className="p-2 text-xs">{new Date(s.created_at).toLocaleDateString("ar")}</td>
+                        <td className="p-2"><GrantAccess userId={s.id} /></td>
                       </tr>
                     ))}
                   </tbody>
@@ -401,6 +403,32 @@ function Stat({ icon, label, value }: { icon: React.ReactNode; label: string; va
     <div className="p-5 rounded-2xl bg-card border">
       <div className="flex items-center gap-2 text-muted-foreground mb-1">{icon}<span className="text-xs">{label}</span></div>
       <div className="text-2xl font-bold">{value}</div>
+    </div>
+  );
+}
+
+function GrantAccess({ userId }: { userId: string }) {
+  const [plan, setPlan] = useState<"basic" | "premium">("basic");
+  const [days, setDays] = useState<30 | 365>(30);
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+  async function grant() {
+    if (!confirm("منح وصول مجاني (بدون فاتورة مدفوعة)؟")) return;
+    setBusy(true); setMsg(null);
+    const { data, error } = await supabase.rpc("admin_grant_complimentary_access", { _user_id: userId, _plan: plan, _days: days });
+    setBusy(false);
+    setMsg(error ? "تعذّر المنح" : `حتى ${new Date(data as string).toLocaleDateString("ar")}`);
+  }
+  return (
+    <div className="flex items-center gap-1 text-xs">
+      <select aria-label="الخطة" value={plan} onChange={(e) => setPlan(e.target.value as "basic" | "premium")} className="border rounded px-1 py-0.5 bg-background">
+        <option value="basic">أساسي</option><option value="premium">مميز</option>
+      </select>
+      <select aria-label="المدة" value={days} onChange={(e) => setDays(Number(e.target.value) as 30 | 365)} className="border rounded px-1 py-0.5 bg-background">
+        <option value={30}>30 يوم</option><option value={365}>سنة</option>
+      </select>
+      <button onClick={grant} disabled={busy} className="px-2 py-0.5 rounded bg-primary text-primary-foreground disabled:opacity-50">منح</button>
+      {msg && <span className="text-muted-foreground">{msg}</span>}
     </div>
   );
 }

@@ -15,6 +15,13 @@
       "when": 1795433414690,
       "tag": "0001_phase1_enforce_access_boundaries",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1795604319334,
+      "tag": "0002_admin_complimentary_access",
+      "breakpoints": true
     }
   ]
 }

@@ -108,6 +108,39 @@ export type Database = {
         }
         Relationships: []
       }
+      complimentary_grants: {
+        Row: {
+          created_at: string
+          days: number
+          granted_by: string
+          id: string
+          plan: string
+          reason: string | null
+          user_id: string
+          valid_until: string
+        }
+        Insert: {
+          created_at?: string
+          days: number
+          granted_by: string
+          id?: string
+          plan: string
+          reason?: string | null
+          user_id: string
+          valid_until: string
+        }
+        Update: {
+          created_at?: string
+          days?: number
+          granted_by?: string
+          id?: string
+          plan?: string
+          reason?: string | null
+          user_id?: string
+          valid_until?: string
+        }
+        Relationships: []
+      }
       courses: {
         Row: {
           created_at: string
@@ -872,6 +905,15 @@ export type Database = {
         }[]
       }
       admin_exists: { Args: never; Returns: boolean }
+      admin_grant_complimentary_access: {
+        Args: {
+          _days: number
+          _plan: string
+          _reason?: string
+          _user_id: string
+        }
+        Returns: string
+      }
       admin_link_existing_child: {
         Args: { _child_id: string; _parent_id: string }
         Returns: undefined
